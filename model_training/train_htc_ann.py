@@ -32,6 +32,12 @@ def train_and_save_ann_model(data_path, model_paths, column_indices):
     df_clean = pd.concat([X, y], axis=1).dropna()
     X = df_clean.iloc[:, :len(column_indices["input"])].values
     y = df_clean.iloc[:, len(column_indices["input"]):].values
+    print("🔍 Preview of X:")
+    print(X[:5])  # first 5 rows of X
+
+    print("\n🔍 Preview of y:")
+    print(y[:5])  # first 5 rows of y
+
 
     # === Normalize features
     scaler_x = StandardScaler()

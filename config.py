@@ -2,7 +2,7 @@ import os
 
 # HTC constants
 TIME_CONST = 2       # hours (or adjust as appropriate)
-SOLID_CONST = 30     # kg/hr
+SOLID_CONST = 30     # % Solid loading
 
 
 # === PSO Settings ===
@@ -25,28 +25,18 @@ PSO_CONFIG = {
 }
 
 # === Feedstock Properties ===
+# Feedstock compositions are defined as lists of wt% for [C, H, N, S, O, VM, FC, Ash]
 FEEDS = {
     "OHWD": {
-        "composition": [34.3, 4.0, 1.9, 0.2, 23.8, 54.6342, 9.5658, 35.8]
+        "composition": [53.4, 6.2, 3, 0.3, 37.1, 54.6, 9.6, 35.8]
     },
     "AGR": {
-        "composition": [44.1, 5.1, 3.2, 0.3, 31.3, 70.2, 13.8, 16.0]
+        "composition": [52.5, 6.07, 3.81, 0.36, 37.26, 70.2, 13.8, 16.0]
     },
     "MSW": {
-        "composition": [24.1, 1.7, 1.5, 0.2, 17.0, 36.2, 8.3, 55.5]
+        "composition": [54.16, 3.82, 3.37, 0.45, 38.2, 36.2, 8.3, 55.5]
     },
-    "SS1": {
-        "composition": [28.6, 3.1, 3.4, 1.5, 16.5, 51.0, 2.1, 46.9]
-    },
-    "VGF": {
-        "composition": [29.5, 3.0, 2.0, 0.3, 21.4, 47.2, 9.0, 43.8]
-    },
-    "DSS": {
-        "composition": [39.88, 6.2, 6.04, 5.62, 20.46, 69.0, 9.2, 21.8]
-    },
-    "SS2": {
-        "composition": [26.542098, 4.195434, 3.833134, 0.0, 52.29, 68.56, 3.9, 27.54]
-    }
+
 }
 
 

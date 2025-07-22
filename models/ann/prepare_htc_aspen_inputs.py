@@ -1,89 +1,134 @@
+# prepare parameters for HTC simulation in Aspen Plus.
+
+import numpy as np
 from models.ann.ann_predictor import ANNModelSklearn
+from optimization.aspen_paths import ASPEN_PATHS
 
-def generate_htc_parameter_paths():
-    paths = []
-    for i in range(4):
-        paths.append(f"\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#{i}")
-    for i in range(7):
-        paths.append(f"\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#{i}")
-    for i in range(3):
-        paths.append(f"\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#{i}")
-    paths.append("\\Data\\Streams\\FEED\\Input\\FLOW\\NCPSD\\WASTES")
-    paths.append("\\Data\\Blocks\\HTC\\Input\\TEMP")
-    paths.append("\\Data\\Blocks\\STMHX1\\Input\\VALUE")
-    paths.append("\\Data\\Streams\\DUMMY1\\Input\\FLOW\\MIXED\\C")
-    paths.append("\\Data\\Streams\\DUMMY1\\Input\\FLOW\\MIXED\\H2")
-    paths.append("\\Data\\Streams\\DUMMY1\\Input\\FLOW\\MIXED\\N2")
-    for i in range(4):
-        paths.append(f"\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\PROXANAL\\#{i}")
-    for i in range(7):
-        paths.append(f"\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#{i}")
-    for i in range(4):
-        paths.append(f"\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\PROXANAL\\#{i}")
-    for i in range(7):
-        paths.append(f"\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#{i}")
-    paths.append("\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\SULFANAL\\#2")
-    paths.append("\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\SULFANAL\\#2")
-    paths.append("\\Data\\Blocks\\X\\Input\\FRAC\\CHARPROD")
-    return paths
-
-def prepare_htc_aspen_inputs(x_input, ann_models, solid_feed_rate, temp, x_char_split):
+def prepare_htc_aspen_inputs(input):
     """
-    Combines HTC prediction, post-processing, and Aspen parameter packaging.
+    # === Index mapping for input and processed feature vectors ===
 
-    Args:
-        x_input (list or np.array): Input vector (11 features)
-        ann_models (dict): Dictionary of trained ANN models
-        solid_feed_rate (float): Feed flowrate (kg/hr)
-        temp (float): HTC temperature (°C)
-        x_char_split (float): Fraction of char routed to energy recovery
+    # input (model input):
+    # [ 0] C_in         (wt%)
+    # [ 1] H_in         (wt%)
+    # [ 2] N_in         (wt%)
+    # [ 3] S_in         (wt%)
+    # [ 4] O_in         (wt%)
+    # [ 5] VM_in        (%)
+    # [ 6] FC_in        (%)
+    # [ 7] Ash_in       (%)
+    # [ 8] T_HTC        (°C)
+    # [ 9] t_res        (h)
+    # [10] Solid_load   (%)
+    # [11] Char_split  (fraction of char routed to energy recovery, e.g. 0.5)
+
+    # feed_prop (processed composition):
+    # [ 0] Unused
+    # [ 1] FC_in        (%)
+    # [ 2] VM_in        (%)
+    # [ 3] Ash_in       (%)
+    # [ 4] Ash_in       (%)
+    # [ 5] C_in         (wt%)
+    # [ 6] H_in         (wt%)
+    # [ 7] N_in         (wt%)
+    # [ 8] Cl_in        (wt%) = 100 - (C + H + N + S + O)
+    # [ 9] S_in         (wt%)
+    # [10] O_in         (wt%)
+    # [11] PYRITIC Sulfur (assumed 0)
+    # [12] SULFATE Sulfur (assumed 0)
+    # [13] ORGANIC Sulfur (assumed = S_in)
+
+    Combines HTC prediction, post-processing, and Aspen parameter packaging.
 
     Returns:
         dict: {"path": [...], "value": [...]} for Aspen INP injection
     """
+    # Create paths for Aspen input
+    paths_config = ASPEN_PATHS["htc"]["inputs"]
+
+    # Combine all path entries from categorized input sections
+    paths = (
+            paths_config["prox"]
+            + paths_config["ult"]
+            + paths_config["sulfur"]
+            + [
+                paths_config["flow"],
+                paths_config["temp"],
+                paths_config["solid_rate"],
+                paths_config["gas_C"],
+                paths_config["gas_H2"],
+                paths_config["gas_N2"],
+            ]
+            + paths_config["char_prox"]
+            + paths_config["char_ult"]
+            + paths_config["org_prox"]
+            + paths_config["org_ult"]
+            + [
+                paths_config["char_sulfur"],
+                paths_config["org_sulfur"],
+                paths_config["char_split"],
+            ]
+    )
+
+
+    # Ensure input is a numpy array
+    x_input = input[:-1]
+    ann_input = x_input
+    x_char_split = input[-1]
+    # Step 0: load ANN model
+    ann_model = ANNModelSklearn()
     # Step 1: Predict ANN outputs
-    ann_output = ANNModelSklearn(x_input, ann_models)
+    ann_output = ann_model.predict(ann_input)
 
     # Step 2: Post-process to mass-consistent HTC result
-    htc_result = htc_ann_postprocess(x_input, ann_output)
+
 
     # Step 3: Prepare full Aspen input vector
+    # Extract ash and calculate scaling factor
+    ash = x_input[7]
+    scale = (100 - ash) / 100
+    x_input[0:5] = x_input[0:5] * scale
+    htc_result = htc_ann_postprocess(x_input, ann_output)
+
     feed_prop = [
-        0,
-        x_input[6],
-        x_input[5],
-        x_input[7],
-        x_input[7],
-        x_input[0],
-        x_input[1],
-        x_input[2],
-        0,
-        x_input[3],
-        x_input[4],
-        0.2,
-        0,
-        0
+        0,                     # Unused
+        x_input[6],            # FC
+        x_input[5],            # VM
+        x_input[7],            # Ash (proximate
+        x_input[7],            # Ash (ultimate)
+        x_input[0],            # C
+        x_input[1],            # H
+        x_input[2],            # N
+        100 - sum(x_input[i] for i in [0, 1, 2, 3, 4]),  # Cl = 100 - (C + H + N + S + O)
+        x_input[3],            # S
+        x_input[4],            # O
+        0,                     # Unused
+        0,                     # Unused
+        x_input[3]             # S again
     ]
 
     htc_sim = [
-        solid_feed_rate,
-        temp,
-        temp,
-        htc_result['char_yield'],
-        htc_result['org_yield'],
-        htc_result['water_yield'],
-        *htc_result['char_prox'],
-        *htc_result['char_ult'],
-        *htc_result['org_prox'],
-        *htc_result['org_ult'],
-        htc_result['char_ult'][5],   # S in char
-        htc_result['org_ult'][5]     # S in organics
+        x_input[10],                          # Solid load (%)
+        x_input[8],                           # HTC temp (°C)
+        x_input[8],                           # HTC temp (°C) duplicated
+        htc_result["mass_yields"]["char"],   # Char yield (kg/kg-wet)
+        htc_result["mass_yields"]["organics"],  # Organics yield (kg/kg-wet)
+        htc_result["mass_yields"]["water"],     # Water yield (kg/kg-wet)
+
+        *htc_result["char_prox"],            # Moisture, Volatile, FixedC, Ash (char)
+        *htc_result["char_ult"],             # C, H, O, N, Cl, S, Ash (char)
+        *htc_result["org_prox"],             # Moisture, Volatile, FixedC, Ash (organics)
+        *htc_result["org_ult"],              # C, H, O, N, Cl, S, Ash (organics)
+
+        htc_result["char_ult"][5],           # S in char
+        htc_result["org_ult"][5]             # S in organics
     ]
+
 
     values = feed_prop + htc_sim + [x_char_split]
 
     return {
-        "path": generate_htc_parameter_paths(),
+        "path": paths,
         "value": values
     }
 
@@ -110,7 +155,8 @@ def htc_ann_postprocess(x_input, y_ann_output):
     y = np.array(y_ann_output).flatten()
 
     # === Extract ANN outputs ===
-    charyield, C, H, O, N, S, volatile, fixedC, ash, HHV = y
+    charyield, C, H, O, N, S, volatile, fixedC, ash = y
+    HHV = np.dot(np.array([C, H,N,S,O,ash]),np.array([0.3491, 1.1783,0.1005,-0.1034,-0.0151,-0.0211])) # Ref: Channiwala SA, 2002
     y_htc = np.array([charyield, C, H, O, N, S, volatile, fixedC, ash])
     y_htc[y_htc < 0] = 0
     if y_htc[0] > 100:

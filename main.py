@@ -15,6 +15,25 @@ def select_system():
         exit()
     print("✅ Waste-to-Energy system selected.\n")
 
+def select_feed():
+    print("📦 Available feedstocks:")
+    feed_keys = list(FEEDS.keys())
+    for idx, feed in enumerate(feed_keys):
+        print(f"{idx + 1}. {feed}")
+
+    try:
+        selection = int(input("Select feedstock by number: ")) - 1
+        if selection < 0 or selection >= len(feed_keys):
+            raise ValueError
+    except ValueError:
+        print("❌ Invalid selection. Exiting.")
+        exit()
+
+    selected_feed_name = feed_keys[selection]
+    selected_feed_data = FEEDS[selected_feed_name]
+    print(f"✅ Selected feedstock: {selected_feed_name}\n")
+    return selected_feed_name, selected_feed_data
+
 def main():
     select_system()
 
@@ -37,8 +56,11 @@ def main():
         print("🛑 Optimization skipped. Exiting MIRA.")
         return
 
+    # === Feed selection before optimization ===
+    selected_feed_name, selected_feed_data = select_feed()
+
     print("🚀 Starting PSO Optimization...")
-    best_particle, best_metrics, history = run_pso(PSO_CONFIG, FEEDS)
+    best_particle, best_metrics, history = run_pso(PSO_CONFIG, {selected_feed_name: selected_feed_data})
 
     print("\n✅ Optimization Complete")
     print("Best Particle:", best_particle)
