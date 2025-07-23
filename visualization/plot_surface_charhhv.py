@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import RBFInterpolator
-from config import DATA_PATHS
+from config.config import DATA_PATHS
 
 # === Mapping Excel-like column letters to 0-based indices ===
 col_map = {

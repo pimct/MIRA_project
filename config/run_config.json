@@ -1,0 +1,29 @@
+{
+  "feed": "MSW",
+  "process_system": ["htc", "combustion"],
+  "scenario": "CO2-focused",
+  "use_surrogate": false,
+  "temp_range": [250, 320],
+  "x_char_range": [0.1, 0.6],
+  "population_size": 20,
+  "iterations": 50,
+
+  "ann_training": {
+    "process_name": "htc",
+    "dataset_path": "data/datasets/htc_dataset.csv",
+    "input_indices": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    "output_indices": [14, 15, 16, 17, 18, 19, 20, 21, 22],
+    "output_columns": [
+      "Yield (% dry basis)",
+      "C,out (wt%)",
+      "H,out (wt%)",
+      "N,out (wt%)",
+      "S,out (wt%)",
+      "O,out (wt%)",
+      "VM,out (%)",
+      "FC,out (%)",
+      "Ash,out (%)"
+    ],
+    "skip_index": 4
+  }
+}

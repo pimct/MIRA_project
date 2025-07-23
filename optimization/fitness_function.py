@@ -1,5 +1,5 @@
 import numpy as np
-from models.ann.ann_predictor import run_ann_models
+from engine.simulation.ann_predictor import run_ann_models
 from simulation.aspen_runner import run_aspen_simulation
 
 def evaluate_fitness(particle, feed_name, feeds, config):

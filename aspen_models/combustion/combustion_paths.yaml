@@ -1,0 +1,12 @@
+input_paths:
+  feed_flow: "\\Data\\Streams\\WASTE\\Input\\TOTFLOW\\MASSFLMX"
+  feed_composition:
+    - "\\Data\\Streams\\WASTE\\Input\\COMP\\C"
+    - "\\Data\\Streams\\WASTE\\Input\\COMP\\H"
+    - "\\Data\\Streams\\WASTE\\Input\\COMP\\N"
+    - "\\Data\\Streams\\WASTE\\Input\\COMP\\S"
+    - "\\Data\\Streams\\WASTE\\Input\\COMP\\O"
+
+output_paths:
+  power_generated: "\\Data\\Blocks\\COMBUSTOR\\Output\\POWER"
+  CO2_emission: "\\Data\\Streams\\FLUEGAS\\Output\\MOLEFLOW\\CO2"

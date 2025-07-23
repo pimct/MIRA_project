@@ -1,7 +1,7 @@
 # prepare parameters for HTC simulation in Aspen Plus.
 
 import numpy as np
-from models.ann.ann_predictor import ANNModelSklearn
+from engine.simulation.ann_predictor import ANNModelSklearn
 from optimization.aspen_paths import ASPEN_PATHS
 
 def prepare_htc_aspen_inputs(input):

@@ -1,8 +1,7 @@
 import time
 import numpy as np
 import win32com.client
-from pathlib import Path
-from config import FEEDS, MODEL_PATHS, TIME_CONST, SOLID_CONST
+from config.config import FEEDS, MODEL_PATHS, TIME_CONST, SOLID_CONST
 from optimization.aspen_paths import ASPEN_PATHS
 from models.ann.prepare_direct_combustion_inputs import prepare_direct_combustion_inputs
 from models.ann.prepare_htc_aspen_inputs import prepare_htc_aspen_inputs

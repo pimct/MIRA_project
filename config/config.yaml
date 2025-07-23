@@ -1,0 +1,37 @@
+time_constant: 2              # hours
+solid_loading: 30            # wt%
+
+default_feedstock: MSW
+
+product_prices:
+  char: 0.004285         # $/MJ
+  electricity: 0.0857    # $/kWh
+
+pso:
+  max_iter: 100
+  num_particles: 30
+  x_bounds:
+    x1: [0, 1]          # process selection
+    x2: [250, 550]      # HTC temp
+    x3: [0.1, 0.5]      # char routing
+    x4: [0, 0]          # reserved
+  objective_weights:
+    revenue: -0.5
+    co2: 0.5
+
+
+MODEL_CONFIG:
+  htc:
+    ANN_COLUMN_INDICES:
+      input: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      output: [14, 15, 16, 17, 18, 19, 20, 21, 22]
+    OUTPUT_COLUMNS:
+      - "Yield (% dry basis)"
+      - "C,out (wt%)"
+      - "H,out (wt%)"
+      - "N,out (wt%)"
+      - "S,out (wt%)"
+      - "O,out (wt%)"
+      - "VM,out (%)"
+      - "FC,out (%)"
+      - "Ash,out (%)"

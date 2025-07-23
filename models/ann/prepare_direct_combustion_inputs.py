@@ -1,18 +1,5 @@
 # prepare parameters for direct combustion simulation in Aspen Plus.
 
-# def generate_directcomb_parameter_paths():
-#     paths = []
-#     # Proximate analysis: FC, VM, Ash (Prox)
-#     for i in range(4):
-#         paths.append(f"\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#{i}")
-#     # Ultimate analysis: Ash (Ult), C, H, N, Cl, S, O
-#     for i in range(7):
-#         paths.append(f"\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#{i}")
-#     # Sulfur analysis: 3 entries
-#     for i in range(3):
-#         paths.append(f"\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#{i}")
-#     return paths
-
 from optimization.aspen_paths import ASPEN_PATHS
 
 def prepare_direct_combustion_inputs(x_input):
