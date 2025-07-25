@@ -99,3 +99,4 @@ def run_htc_model(model_config, particle_position,feed_comp):
 
 # Extract results (y1 = CO2, y2 = revenue)
     return results
+

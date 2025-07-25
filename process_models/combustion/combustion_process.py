@@ -45,7 +45,6 @@ def prepare_x_input(feed_comp):
     return x_input
 
 
-
 def run_combustion_model(model_config, particle_position,feed_comp):
     """
     Run HTC model with Aspen + ANN hybrid setup.
@@ -68,3 +67,4 @@ def run_combustion_model(model_config, particle_position,feed_comp):
     results = run_simulation(process_name,x_input)
 
     return results
+

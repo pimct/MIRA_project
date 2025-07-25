@@ -1,4 +1,5 @@
 {
+  "test_mode": true,
   "system_manipulated_var": [
     250,
     0.1
@@ -22,12 +23,11 @@
   ],
   "feed": "MSW",
   "feed_comp": {
-    "Moisture": 55,
-    "C,in (wt%)": 54.15730337,
-    "H,in (wt%)": 3.820224719,
-    "N,in (wt%)": 3.370786517,
-    "S,in (wt%)": 0.449438202,
-    "O,in (wt%)": 38.20224719,
+    "C,in (wt%)": 24.1,
+    "H,in (wt%)": 1.7,
+    "N,in (wt%)": 1.5,
+    "S,in (wt%)": 0.2,
+    "O,in (wt%)": 17.0,
     "VM,in (%)": 36.2,
     "FC,in (%)": 8.3,
     "Ash,in (%)": 55.5
@@ -45,7 +45,18 @@
     "pso": {
       "max_iter": 100,
       "num_particles": 30
-    }
+    },
+    "normalization_bounds": {
+      "revenue": {
+        "min\"": 0,
+        "max\"": 500
+      },
+      "co2": {
+        "min": 500,
+        "max": 1500
+      }
+    },
+    "track_minmax": true
   },
   "product_prices": {
     "char": 0.004285,
@@ -64,14 +75,16 @@
           "bounds": [
             250,
             550
-          ]
+          ],
+          "step": 1
         },
         "char_routing": {
           "name": "Char Routing",
           "bounds": [
             0.1,
             0.5
-          ]
+          ],
+          "step": 0.01
         }
       },
       "ANN_TRAINING": {

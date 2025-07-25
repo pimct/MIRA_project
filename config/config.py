@@ -139,12 +139,17 @@ def prepare_run_config():
             var_bounds.append(bounds)
             system_manipulated_var.append(bounds[0])  # Lower bound as initial value
 
-    # === Get product prices from YAML ===
+    # === Get product prices, test mode, and normalization settings ===
     product_prices = config.get("product_prices", {})
-    if not product_prices:
-        print("⚠️ Warning: No product_prices found in config.yaml")
+    test_mode = config.get("test_mode", False)
+
+    optimizer_config = config.get("OPTIMIZER_CONFIG", {})
+    pso_settings = optimizer_config.get("pso", {})
+    normalization_bounds = optimizer_config.get("normalization_bounds", {})
+    track_minmax = optimizer_config.get("track_minmax", False)
 
     # === Construct run_config ===
+    run_config["test_mode"] = test_mode
     run_config["system_manipulated_var"] = system_manipulated_var
     run_config["system_manipulated_var_details"] = system_manipulated_var_details
     run_config["var_bounds"] = var_bounds
@@ -153,11 +158,17 @@ def prepare_run_config():
     run_config["process_system"] = selected_process
     run_config["scenario"] = scenario_name
     run_config["objective_weights"] = objective_weights
-    run_config["optimizer_config"] = config.get("OPTIMIZER_CONFIG", {})
+    run_config["optimizer_config"] = {
+        "pso": pso_settings,
+        "normalization_bounds": normalization_bounds,
+        "track_minmax": track_minmax
+    }
     run_config["product_prices"] = product_prices
     run_config["model_config"] = selected_model_config
 
     save_run_config(run_config)
+
+
 
 
 
@@ -172,9 +183,8 @@ def load_run_config(path=RUN_CONFIG_PATH):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-# # === Main Entry ===
-# if __name__ == "__main__":
-#     run_config = prepare_run_config()
-#     save_run_config(run_config)
+# === Main Entry ===
+if __name__ == "__main__":
+    run_config = prepare_run_config()
 
 

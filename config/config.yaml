@@ -1,3 +1,5 @@
+test_mode: true
+
 default_feedstock: MSW
 default_scenario: CO2-focused
 default_system: Hybrid_pathway
@@ -27,10 +29,21 @@ scenarios:
       revenue: -0.5
       co2: 0.5
 
+
 OPTIMIZER_CONFIG:
+  normalization_bounds:
+    revenue:
+      min": 0
+      max": 500
+    co2:
+      min: 500
+      max: 1500
+  track_minmax: true
+
   pso:
     max_iter: 100
     num_particles: 30
+
 
 MODEL_CONFIG:
   htc:
@@ -43,9 +56,11 @@ MODEL_CONFIG:
       temp:
         name: "HTC Temperature"
         bounds: [250, 550]
+        step: 1
       char_routing:
         name: "Char Routing"
         bounds: [0.1, 0.5]
+        step: 0.01
 
     ANN_TRAINING:
       data_path: "data/datasets/htc_data.csv"

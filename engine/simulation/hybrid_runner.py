@@ -1,6 +1,6 @@
 import time
 import os
-import win32com.client
+#import win32com.client
 from engine.simulation.prepare_paths import prepare_aspen_inputs, prepare_aspen_outputs
 
 
