@@ -4,6 +4,23 @@ import win32com.client
 from engine.simulation.prepare_paths import prepare_aspen_inputs, prepare_aspen_outputs
 
 
+def safe_set(aspen, path, value, verbose=False, index=None):
+    node = aspen.Tree.FindNode(path)
+    if node is None:
+        if verbose:
+            prefix = f"[{index:02d}]" if index is not None else ""
+            print(f"❌ {prefix} Node not found: {path}")
+        return False
+    try:
+        node.Value = value
+        return True
+    except Exception as e:
+        if verbose:
+            prefix = f"[{index:02d}]" if index is not None else ""
+            print(f"⚠️ {prefix} Failed to set {path} = {value}: {e}")
+        return False
+
+
 def run_simulation(process_name, x_input, verbose=True, visible=False):
     """
     Run Aspen simulation for a given process using Aspen Plus .apw file.
@@ -12,6 +29,7 @@ def run_simulation(process_name, x_input, verbose=True, visible=False):
         process_name (str): Process name (e.g., "htc")
         x_input (np.ndarray): Input data (from ANN or direct)
         verbose (bool): Whether to print logs
+        visible (bool): Whether to show Aspen GUI
 
     Returns:
         dict: Simulation output results {name: value}
@@ -23,25 +41,30 @@ def run_simulation(process_name, x_input, verbose=True, visible=False):
 
     # === Prepare input values ===
     input_dict = prepare_aspen_inputs(process_name, x_input)
-    for i, (p, v) in enumerate(zip(input_dict["path"], input_dict["value"])):
+    paths = input_dict["path"]
+    values = input_dict["value"]
+
+    if len(paths) != len(values):
+        raise ValueError("❌ Input path/value length mismatch.")
+
+    # Log non-numeric values
+    for i, (p, v) in enumerate(zip(paths, values)):
         if not isinstance(v, (int, float)):
             print(f"⚠️ Non-numeric value at index {i}: {p} = {v}")
-
 
     # === Launch Aspen ===
     try:
         aspen = win32com.client.Dispatch("Apwn.Document")
+        if visible:
+            aspen.Visible = True
         aspen.InitFromArchive2(str(apw_path))
+        time.sleep(3)  # Allow Aspen to initialize
     except Exception as e:
         raise RuntimeError(f"❌ Failed to launch Aspen: {e}")
 
-    # === Apply inputs ===
-    for path, value in zip(input_dict["path"], input_dict["value"]):
-        try:
-            aspen.Tree.FindNode(path).Value = value
-        except Exception as e:
-            if verbose:
-                print(f"⚠️ Could not set {path} = {value}: {e}")
+    # === Apply inputs with safety check ===
+    for i, (path, value) in enumerate(zip(paths, values)):
+        safe_set(aspen, path, value, verbose=verbose, index=i)
 
     # === Run simulation ===
     try:
@@ -69,5 +92,3 @@ def run_simulation(process_name, x_input, verbose=True, visible=False):
 
     aspen.Close(False)
     return result
-
-
