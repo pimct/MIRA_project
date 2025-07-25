@@ -16,8 +16,6 @@ input_paths:
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#6"  # O
 
   # Sulfur Analysis (Feed)
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#0"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#1"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#2"
 
   # Feed Flow Rate (Solid)
