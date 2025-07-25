@@ -1,6 +1,4 @@
 import numpy as np
-
-#from engine.simulation.prepare_paths import prepare_aspen_inputs, prepare_aspen_outputs
 from engine.simulation.hybrid_runner import run_simulation
 
 
