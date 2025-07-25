@@ -1,10 +1,8 @@
-#import os
-#import json
 import numpy as np
 
 #from engine.simulation.prepare_paths import prepare_aspen_inputs, prepare_aspen_outputs
 from engine.simulation.hybrid_runner import run_simulation
-#from engine.simulation.hybrid_runner import AspenRunnerManager
+
 
 
 def prepare_x_input(feed_comp,temp, x_char_split, time, solid_loading):
@@ -21,29 +19,7 @@ def prepare_x_input(feed_comp,temp, x_char_split, time, solid_loading):
     Returns:
         np.array: Input vector for HTC process
     """
-    # Ensure feed_comp is a numpy array for consistency
-
     feed_comp = np.array(feed_comp[1:])    # Validate input dimensions
-
-    if len(feed_comp) != 8:
-        raise ValueError("feed_comp must have exactly 10 elements")
-# Sample HTC input vector
-#     x_input = np.array([
-#         53.4,   # C_in (wt%)
-#         6.2,    # H_in
-#         3.0,    # N_in
-#         0.3,    # S_in
-#         37.1,   # O_in
-#         54.6,   # VM_in (%)
-#         9.6,    # FC_in
-#         35.8,   # Ash_in (%)
-#         260.0,  # HTC temperature (°C)
-#         2.0,    # Residence time (hr)
-#         30.0,   # Solid loading (wt%)
-#         0.5     # Char split fraction
-#     ])
-#
-#     result = prepare_aspen_inputs("htc", x_input)
     x_input = np.array([
         *feed_comp,
         temp,                # HTC temperature (°C)
@@ -85,18 +61,5 @@ def run_htc_model(model_config, particle_position,feed_comp):
     # Run Aspen model
     results = run_simulation(process_name,x_input)
 
-    #runner = AspenRunnerManager(process_names=["htc", "combustion"])
-
-    # Debug one simulation visually
-    # results = runner.run_simulation(process_name, x_input=None, visible=False)
-    # print(results)
-    # print("\n📊 Simulation Results:")
-    # for key, value in results.items():
-    #     print(f"🔹 {key}: {value}")
-
-    #runner.close_all()
-
-
-# Extract results (y1 = CO2, y2 = revenue)
     return results
 

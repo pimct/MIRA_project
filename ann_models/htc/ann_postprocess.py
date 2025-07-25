@@ -2,144 +2,147 @@ import numpy as np
 from engine.simulation.ann_predictor import ANNModelSklearn
 
 
+
+def atom_bal(feed_ultimate: dict, char_predicted: dict, char_yield: float):
+    """
+    Perform atom balance correction on ANN-predicted char composition (with char yield),
+    and compute remaining atoms as an 'organic' product.
+
+    Args:
+        feed_ultimate (dict): Feed ultimate analysis (wt%) including ASH (assumed 1g basis).
+        char_predicted (dict): ANN-predicted char composition (wt%) including ASH (per g char).
+        char_yield (float): Fraction of char mass per 1g of feed (e.g., 0.35 for 35%).
+
+    Returns:
+        tuple: (char_composition, organic_composition), both as ordered dicts (wt%)
+    """
+
+    # Atomic weights (g/mol)
+    atomic_weights = {
+        'CARBON': 12.01,
+        'HYDROGEN': 1.008,
+        'OXYGEN': 16.00,
+        'NITROGEN': 14.01,
+        'SULFUR': 32.06,
+        'CHLORINE': 35.45
+    }
+
+    # Aspen-compatible order
+    element_order = ['ASH', 'CARBON', 'HYDROGEN', 'NITROGEN', 'CHLORINE', 'SULFUR', 'OXYGEN']
+    atom_elements = [el for el in element_order if el != 'ASH']
+
+    # Helpers
+    def wt_to_mol(wt_dict, total_mass):
+        return {el: (wt_dict[el] / 100) * total_mass / atomic_weights[el] for el in atom_elements}
+
+    def mol_to_wt(mol_dict, total_mass=None):
+        wt_dict = {el: mol_dict[el] * atomic_weights[el] for el in atom_elements}
+        if total_mass:
+            # Normalize to 100%
+            wt_dict = {el: (wt / total_mass * 100) for el, wt in wt_dict.items()}
+        return wt_dict
+
+    # Step 1: Convert feed and char to moles
+    feed_mass = 1.0  # assume 1g feed
+    char_mass = char_yield
+    organic_mass = 1.0 - char_yield
+
+    feed_mol = wt_to_mol(feed_ultimate, feed_mass)
+    char_mol = wt_to_mol(char_predicted, char_mass)
+
+    # Step 2: Calculate limiting ratio to scale char moles
+    ratios = {el: feed_mol[el] / char_mol[el] if char_mol[el] > 0 else 1.0 for el in atom_elements}
+    min_ratio = min(1.0, min(ratios.values()))
+
+    # Step 3: Scale char moles
+    char_mol_corrected = {el: char_mol[el] * min_ratio for el in atom_elements}
+    char_wt_corrected = mol_to_wt(char_mol_corrected)
+    char_wt_corrected['ASH'] = (char_predicted.get('ASH', 0.0) / 100) * char_mass  # real ash mass
+
+    # Step 4: Organic = remaining atoms
+    organic_mol = {el: feed_mol[el] - char_mol_corrected[el] for el in atom_elements}
+    organic_wt = mol_to_wt(organic_mol)
+    organic_wt['ASH'] = 0.0
+
+    # Step 5: Normalize to wt% of each phase
+    char_total_mass = sum(char_wt_corrected.values())
+    organic_total_mass = sum(organic_wt.values())
+
+    char_normalized = {el: char_wt_corrected.get(el, 0.0) / char_total_mass * 100 for el in element_order}
+    organic_normalized = {el: organic_wt.get(el, 0.0) / organic_total_mass * 100 for el in element_order}
+
+    return char_normalized, organic_normalized
+
+
 class PostProcessor:
     def __init__(self, process_name="htc"):
         self.model = ANNModelSklearn(process_name)
+        self.process_name = process_name
 
-    def predict_and_postprocess(self, x_input):
-        # Sample HTC input vector
-        #     x_input = np.array([
-        #         53.4,   # C_in (wt%)
-        #         6.2,    # H_in
-        #         3.0,    # N_in
-        #         0.3,    # S_in
-        #         37.1,   # O_in
-        #         54.6,   # VM_in (%)
-        #         9.6,    # FC_in
-        #         35.8,   # Ash_in (%)
-        #         260.0,  # HTC temperature (°C)
-        #         2.0,    # Residence time (hr)
-        #         30.0,   # Solid loading (wt%)
-        #         0.5     # Char split fraction
-        #     ])
-
+    def predict_and_postprocess(self, x_input, input_paths=None):
         ann_output = self.model.predict(x_input[:-1])
         x_char_split = x_input[-1]
-        htc_result = self._htc_ann_postprocess(x_input[:-1], ann_output)
-        print(htc_result) ####### recheck
 
+        # Feed ultimate analysis
+        feed_ultimate = {
+            "CARBON": x_input[0],
+            "HYDROGEN": x_input[1],
+            "NITROGEN": x_input[2],
+            "SULFUR": x_input[3],
+            "OXYGEN": x_input[4],
+            "ASH": x_input[7],
+            "CHLORINE": 0.0
+        }
 
-        # Build Aspen input values
+        # Atom balance correction
+        char_pred = ann_output["char_ultimate"]
+        char_pred["ASH"] = ann_output.get("char_ash", x_input[7])
+        char_bal, org_bal = atom_bal(feed_ultimate, char_pred, x_char_split)
+
+        # Prepare values
         feed_prop = [
             0,
-            x_input[6],
-            x_input[5],
-            x_input[7],
-            x_input[7],
-            x_input[0],
-            x_input[1],
-            x_input[2],
-            100 - sum(x_input[i] for i in [0, 1, 2, 3, 4]),
-            x_input[3],
-            x_input[4],
+            x_input[6],  # FC
+            x_input[5],  # VM
+            x_input[7],  # Ash
+            x_input[7],  # Ash again for ULT
+            x_input[0],  # C
+            x_input[1],  # H
+            x_input[2],  # N
+            100 - sum(x_input[i] for i in [0,1,2,3,4]),  # O
+            x_input[3],  # S
+            x_input[4],  # O
             0,
             0,
-            x_input[3]
+            x_input[3],  # S again
         ]
 
         htc_sim = [
-            x_input[10],
-            x_input[8],
-            x_input[8],
-            htc_result["mass_yields"]["char"],
-            htc_result["mass_yields"]["organics"],
-            htc_result["mass_yields"]["water"],
-            *htc_result["char_prox"],
-            *htc_result["char_ult"],
-            *htc_result["org_prox"],
-            *htc_result["org_ult"],
-            htc_result["char_ult"][5],
-            htc_result["org_ult"][5]
+            x_input[10],  # Solid loading
+            x_input[8],   # HTC temp
+            x_input[8],   # HX temp
+            ann_output["mass_yields"]["char"],
+            ann_output["mass_yields"]["organics"],
+            ann_output["mass_yields"]["water"],
+            *ann_output["char_prox"],
+            *[char_bal[k] for k in ["CARBON", "HYDROGEN", "NITROGEN", "CHLORINE", "SULFUR", "OXYGEN"]],
+            *ann_output["org_prox"],
+            *[org_bal[k] for k in ["CARBON", "HYDROGEN", "NITROGEN", "CHLORINE", "SULFUR", "OXYGEN"]],
+            char_bal["SULFUR"],
+            org_bal["SULFUR"]
         ]
 
         values = feed_prop + htc_sim + [x_char_split]
 
+        # 🔍 Optional: Validate length
+        if input_paths is not None and len(values) != len(input_paths):
+            raise ValueError(f"Mismatch: {len(values)} values vs {len(input_paths)} paths")
+
         return {
             "values": values,
-            "postprocessed": htc_result
-        }
-
-    def _htc_ann_postprocess(self, x_input, y_ann_output):
-        x = np.array(x_input).flatten()
-        y = np.array(y_ann_output).flatten()
-
-        charyield, C, H, O, N, S, volatile, fixedC, ash = y
-        HHV = np.dot(np.array([C, H, N, S, O, ash]), np.array([0.3491, 1.1783, 0.1005, -0.1034, -0.0151, -0.0211]))
-
-        y_htc = np.array([charyield, C, H, O, N, S, volatile, fixedC, ash])
-        y_htc[y_htc < 0] = 0
-        if y_htc[0] > 100:
-            y_htc[0] = 99
-
-        mass_dryfeed = x[10] / 100
-        moisture_char = 0
-        charyield = y_htc[0] * mass_dryfeed / (100 - moisture_char)
-        mass_drychar = charyield * (100 - moisture_char) / 100
-
-        feed_cl = 100 - sum([x[7], x[0], x[1], x[2], 0, x[3], x[4]])
-        feed_ult = np.array([x[7], x[0], x[1], x[2], feed_cl, x[3], x[4]])
-        char_ult = np.array([y_htc[8], y_htc[1], y_htc[2], y_htc[3], 0, y_htc[4], y_htc[5]])
-
-        if np.sum(char_ult) > 100:
-            char_ult[1:] *= (100 - char_ult[0]) / np.sum(char_ult[1:])
-
-        feed_element = mass_dryfeed * feed_ult / 100
-        char_element = mass_drychar * char_ult / 100
-        diff = feed_element - char_element
-
-        if np.any(diff < 0):
-            char_element[diff < 0] = feed_element[diff < 0]
-            char_ult = char_element * 100 / np.sum(char_element)
-            mass_drychar = np.sum(char_element)
-
-        prod_charyield = mass_drychar * 100 / (100 - moisture_char)
-        char_prox = [
-            moisture_char,
-            y_htc[6] * (100 - char_ult[0]) / np.sum(y_htc[6:8]),
-            y_htc[7] * (100 - char_ult[0]) / np.sum(y_htc[6:8]),
-            char_ult[0]
-        ]
-
-        org_element = feed_element - mass_drychar * char_ult / 100
-        org_ult = np.clip(org_element * 100 / np.sum(org_element), 0, None)
-        org_prox = [0, 0, 100 - org_ult[0], org_ult[0]]
-
-        yChar = [prod_charyield * 100 * 100 / x[10]] + char_ult[[1, 2, 3, 5, 6]].tolist() + char_prox[1:]
-        yOrg = [(x[10] - prod_charyield * 100) * 100 / x[10]] + org_ult[[1, 2, 3, 5, 6]].tolist() + org_prox[1:]
-
-        char_prox_final = [0, yChar[7], yChar[6], yChar[8]]
-        char_ult_final = [yChar[8], yChar[1], yChar[2], yChar[3], 0, yChar[4], yChar[5]]
-        org_prox_final = [0, yOrg[7], yOrg[6], yOrg[8]]
-        org_ult_final = [yOrg[8], yOrg[1], yOrg[2], yOrg[3], 0, yOrg[4], yOrg[5]]
-
-        feed_massflow = x[10]
-        char_yield = yChar[0] * feed_massflow / 100 / 100
-        org_yield = feed_massflow / 100 - char_yield
-        water_yield = 1 - feed_massflow / 100
-
-        mass_yields = {
-            "char": round(char_yield, 6),
-            "organics": round(org_yield, 6),
-            "water": round(water_yield, 6)
-        }
-
-        return {
-            "yChar": yChar,
-            "yOrg": yOrg,
-            "char_ult": char_ult_final,
-            "char_prox": char_prox_final,
-            "org_ult": org_ult_final,
-            "org_prox": org_prox_final,
-            "mass_yields": mass_yields,
-            "HHV": HHV
+            "postprocessed": {
+                "mass_yields": ann_output["mass_yields"],
+                "char_bal": char_bal,
+                "org_bal": org_bal
+            }
         }
