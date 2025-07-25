@@ -18,7 +18,7 @@ MIRA/
 │   ├── evaluation/
 │   │   └── objective_functions.py      # CO₂, revenue, energy, emergy, etc.
 │   ├── data_io/
-│   │    ├── data_loader.py              # Load configs, feed info
+│   │    ├── data_loader.py               # Load configs, feed info
 │   │    └── result_writer.py            # Save and checkpoint results
 │   └── model_training/                           ◀️ NEW: Central training module
 │       ├── train_htc_ann.py                      # HTC-specific ANN training script

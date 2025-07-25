@@ -1,13 +1,34 @@
+import importlib
 import os
 import yaml
 import numpy as np
-from ann_models.htc.htc_model import HTCPostProcessor  # example HTC handler
 
-# Optional: map processes to postprocessors (HTC-specific logic)
-POSTPROCESSORS = {
-    "htc": HTCPostProcessor,  # must implement `.predict_and_postprocess(x_input)`
-    # Add other process classes in the future
-}
+# === Auto-detect and load postprocessor if model exists ===
+def detect_postprocessor(process_name):
+    """
+    Auto-detect and load a postprocessor class for a given process.
+
+    Returns:
+        postprocessor class or None
+    """
+    # Update model_dir to reflect the correct path in the main project directory
+    model_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "ann_models", process_name))
+    postprocess_file = os.path.join(model_dir, "ann_postprocess.py")
+
+    # Check if the postprocessor file exists
+    if not os.path.exists(postprocess_file):
+        print(f"⚠️ Postprocessor file not found for '{process_name}': {postprocess_file}")
+        return None
+
+    try:
+        module_path = f"ann_models.{process_name}.ann_postprocess"
+        class_name = f"PostProcessor"
+        module = importlib.import_module(module_path)
+        post_class = getattr(module, class_name)
+        return post_class
+    except (ModuleNotFoundError, AttributeError) as e:
+        print(f"⚠️ ANN postprocessor not found for '{process_name}': {e}")
+        return None
 
 
 def load_path_mapping(process_name):
@@ -19,47 +40,41 @@ def load_path_mapping(process_name):
         return yaml.safe_load(f)
 
 
+# === Prepare inputs for Aspen (use ANN if available) ===
 def prepare_aspen_inputs(process_name, x_input):
     """
-    Generic Aspen input preparation for any supported process.
-    If the process uses an ANN model, it will apply post-processing.
+    Generic Aspen input preparation. Uses ANN postprocessor if detected.
 
     Args:
         process_name (str): e.g., "htc", "combustion"
-        x_input (np.ndarray): model input or direct Aspen input
+        x_input (np.ndarray): input vector
 
     Returns:
         dict: {"path": [...], "value": [...]}
     """
     path_map = load_path_mapping(process_name)
-    path_dict = path_map.get("input_paths")
-    if path_dict is None:
-        raise KeyError(f"No 'input_paths' found in {process_name}_paths.yaml")
-
     input_paths = path_map.get("input_paths")
     if input_paths is None:
         raise KeyError(f"No 'input_paths' found in {process_name}_paths.yaml")
-    # === Use ANN if postprocessor exists ===
-    if process_name in POSTPROCESSORS:
-        processor = POSTPROCESSORS[process_name]()
+
+    # Try to use ANN postprocessor
+    post_class = detect_postprocessor(process_name)
+    if post_class:
+        print(f"🤖 Using ANN postprocessor for '{process_name}'")
+        processor = post_class()
         result = processor.predict_and_postprocess(x_input)
         values = result["values"]
     else:
+        print(f"🔁 No ANN postprocessor found for '{process_name}', using raw input.")
         values = x_input.tolist()
 
-    # Final format
     return {
         "path": input_paths,
         "value": values
     }
 
+# === Prepare output paths for Aspen ===
 def prepare_aspen_outputs(process_name):
-    """
-    Load and return the Aspen output paths for a given process.
-
-    Returns:
-        dict: {"path": [...], "name": [...]}
-    """
     path_map = load_path_mapping(process_name)
     output_paths = path_map.get("output_paths")
     if output_paths is None:

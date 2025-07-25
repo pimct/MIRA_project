@@ -1,5 +1,5 @@
 # run_pso.py (specific to HTC system)
-from engine.optimizer.pso import run_pso as general_run_pso
+from engine.optimizer.pso.pso import run_pso as general_run_pso
 from optimization.fitness_function import evaluate_fitness
 
 

@@ -22,15 +22,50 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 config_path = os.path.join(BASE_DIR, "config", "run_config.json")
 with open(config_path, "r") as f:
     config = json.load(f)
+#
+# # === Extract ANN config ===
+# ann_cfg = config["ann_training"]
+# process_name = ann_cfg["process_name"]
+# data_path = os.path.join(BASE_DIR, ann_cfg["dataset_path"])
+# input_indices = ann_cfg["input_indices"]
+# output_indices = ann_cfg["output_indices"]
+# output_cols = ann_cfg["output_columns"]
+# skip_index = ann_cfg.get("skip_index", None)
 
-# === Extract ANN config ===
-ann_cfg = config["ann_training"]
-process_name = ann_cfg["process_name"]
-data_path = os.path.join(BASE_DIR, ann_cfg["dataset_path"])
-input_indices = ann_cfg["input_indices"]
-output_indices = ann_cfg["output_indices"]
-output_cols = ann_cfg["output_columns"]
-skip_index = ann_cfg.get("skip_index", None)
+
+# === Let user select process for ANN training ===
+process_options = config["process_system"]
+print("🧠 Available processes for ANN training:")
+for i, proc in enumerate(process_options, 1):
+    print(f"{i}. {proc}")
+
+while True:
+    try:
+        choice = int(input("Enter the number of the process to train ANN for: "))
+        if 1 <= choice <= len(process_options):
+            process_name = process_options[choice - 1]
+            break
+        else:
+            print("⚠️ Invalid number. Please select a valid option.")
+    except ValueError:
+        print("⚠️ Please enter a number.")
+
+# === Extract model config ===
+if process_name not in config["model_config"]:
+    raise ValueError(f"❌ No model_config found for selected process: {process_name}")
+
+process_cfg = config["model_config"][process_name]
+
+if "ANN_TRAINING" not in process_cfg:
+    raise ValueError(f"❌ Selected process '{process_name}' has no ANN_TRAINING. Not supported for ANN training.")
+
+data_path =  process_cfg["ANN_TRAINING"]["data_path"]
+data_path = os.path.join(BASE_DIR, data_path)
+input_indices = process_cfg["ANN_TRAINING"]["input"]
+output_indices = process_cfg["ANN_TRAINING"]["output"]
+output_cols = process_cfg["OUTPUT_COLUMNS"]
+skip_index = process_cfg.get("SKIP_INDEX", None)
+
 
 # === Define output paths ===
 model_dir = os.path.join(BASE_DIR, "ann_models", process_name)

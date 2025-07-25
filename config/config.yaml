@@ -1,28 +1,54 @@
-time_constant: 2              # hours
-solid_loading: 30            # wt%
-
 default_feedstock: MSW
+default_scenario: CO2-focused
+default_system: Hybrid_pathway
+
+process_system:
+  HTC_pathway: ["htc"]
+  Combustion_pathway: ["combustion"]
+  Hybrid_pathway: ["htc", "combustion"]
 
 product_prices:
   char: 0.004285         # $/MJ
-  electricity: 0.0857    # $/kWh
+  electricity: -0.0857    # $/kWh (electricity from aspen is negative)
 
-pso:
-  max_iter: 100
-  num_particles: 30
-  x_bounds:
-    x1: [0, 1]          # process selection
-    x2: [250, 550]      # HTC temp
-    x3: [0.1, 0.5]      # char routing
-    x4: [0, 0]          # reserved
-  objective_weights:
-    revenue: -0.5
-    co2: 0.5
+scenarios:
+  CO2-focused:
+    objective_weights:
+      revenue: -0.5
+      co2: 0.5
 
+  Revenue-focused:
+    objective_weights:
+      revenue: -1.0
+      co2: 0.0
+
+  Balanced:
+    objective_weights:
+      revenue: -0.5
+      co2: 0.5
+
+OPTIMIZER_CONFIG:
+  pso:
+    max_iter: 100
+    num_particles: 30
 
 MODEL_CONFIG:
   htc:
-    ANN_COLUMN_INDICES:
+    SIMULATION: "hybrid_runner"
+
+    CONSTANTS:
+      time_constant: 2              # hours
+      solid_loading: 30            # wt%
+    MANIPULATED_VARIABLES:
+      temp:
+        name: "HTC Temperature"
+        bounds: [250, 550]
+      char_routing:
+        name: "Char Routing"
+        bounds: [0.1, 0.5]
+
+    ANN_TRAINING:
+      data_path: "data/datasets/htc_data.csv"
       input: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       output: [14, 15, 16, 17, 18, 19, 20, 21, 22]
     OUTPUT_COLUMNS:
@@ -35,3 +61,10 @@ MODEL_CONFIG:
       - "VM,out (%)"
       - "FC,out (%)"
       - "Ash,out (%)"
+    SKIP_INDEX: 4
+
+  combustion:
+    SIMULATION: "hybrid_runner"
+
+  pyrolysis:
+    SIMULATION: "hybrid_runner"

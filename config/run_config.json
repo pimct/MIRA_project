@@ -1,29 +1,121 @@
 {
-  "feed": "MSW",
-  "process_system": ["htc", "combustion"],
-  "scenario": "CO2-focused",
-  "use_surrogate": false,
-  "temp_range": [250, 320],
-  "x_char_range": [0.1, 0.6],
-  "population_size": 20,
-  "iterations": 50,
-
-  "ann_training": {
-    "process_name": "htc",
-    "dataset_path": "data/datasets/htc_dataset.csv",
-    "input_indices": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    "output_indices": [14, 15, 16, 17, 18, 19, 20, 21, 22],
-    "output_columns": [
-      "Yield (% dry basis)",
-      "C,out (wt%)",
-      "H,out (wt%)",
-      "N,out (wt%)",
-      "S,out (wt%)",
-      "O,out (wt%)",
-      "VM,out (%)",
-      "FC,out (%)",
-      "Ash,out (%)"
+  "system_manipulated_var": [
+    250,
+    0.1
+  ],
+  "system_manipulated_var_details": {
+    "htc": [
+      "temp",
+      "char_routing"
     ],
-    "skip_index": 4
+    "combustion": []
+  },
+  "var_bounds": [
+    [
+      250,
+      550
+    ],
+    [
+      0.1,
+      0.5
+    ]
+  ],
+  "feed": "MSW",
+  "feed_comp": {
+    "Moisture": 55,
+    "C,in (wt%)": 54.15730337,
+    "H,in (wt%)": 3.820224719,
+    "N,in (wt%)": 3.370786517,
+    "S,in (wt%)": 0.449438202,
+    "O,in (wt%)": 38.20224719,
+    "VM,in (%)": 36.2,
+    "FC,in (%)": 8.3,
+    "Ash,in (%)": 55.5
+  },
+  "process_system": [
+    "htc",
+    "combustion"
+  ],
+  "scenario": "CO2-focused",
+  "objective_weights": {
+    "revenue": -0.5,
+    "co2": 0.5
+  },
+  "optimizer_config": {
+    "pso": {
+      "max_iter": 100,
+      "num_particles": 30
+    }
+  },
+  "product_prices": {
+    "char": 0.004285,
+    "electricity": -0.0857
+  },
+  "model_config": {
+    "htc": {
+      "SIMULATION": "hybrid_runner",
+      "CONSTANTS": {
+        "time_constant": 2,
+        "solid_loading": 30
+      },
+      "MANIPULATED_VARIABLES": {
+        "temp": {
+          "name": "HTC Temperature",
+          "bounds": [
+            250,
+            550
+          ]
+        },
+        "char_routing": {
+          "name": "Char Routing",
+          "bounds": [
+            0.1,
+            0.5
+          ]
+        }
+      },
+      "ANN_TRAINING": {
+        "data_path": "data/datasets/htc_data.csv",
+        "input": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "output": [
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22
+        ]
+      },
+      "OUTPUT_COLUMNS": [
+        "Yield (% dry basis)",
+        "C,out (wt%)",
+        "H,out (wt%)",
+        "N,out (wt%)",
+        "S,out (wt%)",
+        "O,out (wt%)",
+        "VM,out (%)",
+        "FC,out (%)",
+        "Ash,out (%)"
+      ],
+      "SKIP_INDEX": 4
+    },
+    "combustion": {
+      "SIMULATION": "hybrid_runner"
+    }
   }
 }

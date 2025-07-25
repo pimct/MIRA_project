@@ -47,6 +47,6 @@ input_paths:
 
 
 output_paths:
-  char_yield: "\\Data\\Streams\\CHAR\\Output\\TOTFLOW\\MASSFLMX"
-  hydrochar_HHV: "\\Data\\Streams\\CHAR\\Output\\PROP\\HHV"
-  CO2_emission: "\\Data\\Streams\\GAS\\Output\\MOLEFLOW\\CO2"
+  char: "\\Data\\Streams\\CHARPROD\\Output\\MASSFLOW\\NCPSD\\CHAR"
+  electricity: "\\Data\\Streams\\WNET\\Output\\POWER_OUT"
+  CO2_emission: "\\Data\\Results Summary\\Utility-Sum\\Output\\HTOTCO2E\\PLANT"
