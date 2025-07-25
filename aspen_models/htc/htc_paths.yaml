@@ -1,48 +1,76 @@
 input_paths:
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#0"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#1"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#2"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#3"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#0"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#1"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#2"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#3"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#4"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#5"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#6"
+  # --- Feed Composition ---
+  # Proximate Analysis (Feed)
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#0"  # Moisture
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#1"  # Volatile Matter
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#2"  # Fixed Carbon
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#3"  # Ash
+
+  # Ultimate Analysis (Feed) — ASH FIRST
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#0"  # ASH
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#1"  # C
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#2"  # H
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#3"  # N
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#4"  # Cl
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#5"  # S
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#6"  # O
+
+  # Sulfur Analysis (Feed)
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#0"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#1"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#2"
+
+  # Feed Flow Rate (Solid)
   - "\\Data\\Streams\\FEED\\Input\\FLOW\\NCPSD\\WASTES"
-  - "\\Data\\Blocks\\HTC\\Input\\TEMP"
-  - "\\Data\\Blocks\\STMHX1\\Input\\VALUE"
+
+  # --- Operating Conditions ---
+  - "\\Data\\Blocks\\HTC\\Input\\TEMP"          # HTC Temperature
+  - "\\Data\\Blocks\\STMHX1\\Input\\VALUE"      # Steam Heat Input
+
+  # --- Gas Product Estimates ---
   - "\\Data\\Streams\\DUMMY1\\Input\\FLOW\\MIXED\\C"
   - "\\Data\\Streams\\DUMMY1\\Input\\FLOW\\MIXED\\H2"
   - "\\Data\\Streams\\DUMMY1\\Input\\FLOW\\MIXED\\N2"
+
+  # --- Char Product Composition ---
+  # Proximate Analysis (Char)
   - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\PROXANAL\\#0"
   - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\PROXANAL\\#1"
   - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\PROXANAL\\#2"
   - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\PROXANAL\\#3"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#0"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#1"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#2"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#3"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#4"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#5"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#6"
+
+  # Ultimate Analysis (Char) — ASH FIRST
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#0"  # ASH
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#1"  # C
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#2"  # H
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#3"  # N
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#4"  # Cl
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#5"  # S
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\ULTANAL\\#6"  # O
+
+  # Sulfur in Char
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\SULFANAL\\#2"
+
+  # --- Organic Product Composition ---
+  # Proximate Analysis (Organics)
   - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\PROXANAL\\#0"
   - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\PROXANAL\\#1"
   - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\PROXANAL\\#2"
   - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\PROXANAL\\#3"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#0"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#1"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#2"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#3"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#4"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#5"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#6"
-  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\CHAR\\SULFANAL\\#2"
+
+  # Ultimate Analysis (Organics) — ASH FIRST
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#0"  # ASH
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#1"  # C
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#2"  # H
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#3"  # N
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#4"  # Cl
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#5"  # S
+  - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\ULTANAL\\#6"  # O
+
+  # Sulfur in Organics
   - "\\Data\\Blocks\\HTC\\Input\\ELEM\\NCPSD\\ORGANICS\\SULFANAL\\#2"
+
+  # --- Char Yield Output Tag ---
   - "\\Data\\Blocks\\X\\Input\\FRAC\\CHARPROD"
 
 
