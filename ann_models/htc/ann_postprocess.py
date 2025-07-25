@@ -165,7 +165,7 @@ class PostProcessor:
 
         # --- Feed PROX (Moisture, FC, VM, Ash) ---
         values += [0, x_input[6], x_input[5], x_input[7]]
-        print(values)
+
         # --- Feed ULT (ASH first) ---
         values += [x_input[7], x_input[0], x_input[1], x_input[2], 0.0, x_input[3], x_input[4]]
 

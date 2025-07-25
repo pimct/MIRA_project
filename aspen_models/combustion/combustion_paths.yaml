@@ -1,6 +1,7 @@
 input_paths:
   - "\\Data\\Streams\\FEED\\Input\\FLOW\\NCPSD\\WASTES"
   - "\\Data\\Streams\\FEED\\Input\\FLOW\\MIXED\\WATER"
+  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#0"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#1"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#2"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#3"
@@ -11,8 +12,6 @@ input_paths:
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#4"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#5"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\ULTANAL\\#6"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#0"
-  - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#1"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\SULFANAL\\#2"
 
 output_paths:

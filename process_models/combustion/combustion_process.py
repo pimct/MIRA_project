@@ -16,32 +16,34 @@ def prepare_x_input(feed_comp):
         np.array: Input vector for HTC process
     """
     # Ensure feed_comp is a numpy array for consistency
+    # feed_comp order:  # [Moisture, C, H, N, S, O, VM, FC, Ash]
 
     feed_comp = np.array(feed_comp)    # Validate input dimensions
-    feed_flow = 100 - feed_comp[0]
 
-
-    if len(feed_comp) != 9:
-        raise ValueError("feed_comp must have exactly 10 elements")
-    # Sample HTC input vector
-    #     x_input = np.array([
-    #         100 - Moisture,   # flow waste
-    #         55,     # MOISTURE (wt%)
-    #         53.4,   # C_in (wt%)
-    #         6.2,    # H_in
-    #         3.0,    # N_in
-    #         0.3,    # S_in
-    #         37.1,   # O_in
-    #         54.6,   # VM_in (%)
-    #         9.6,    # FC_in
-    #         35.8,   # Ash_in (%)
-    #     ])
-    #
-    #     result = prepare_aspen_inputs("htc", x_input)
+    # Combustion input vector
     x_input = np.array([
-        feed_flow,
-        *feed_comp,
-    ])
+            100 - feed_comp[0],   # waste feed flow waste (dry-basis)
+            feed_comp[0],     # MOISTURE (wt%)
+            #  Proximate analysis (Moisture, FC, VM, Ash)
+            feed_comp[0],
+            feed_comp[8],
+            feed_comp[7],
+            feed_comp[9],
+            #  Ultimate analysis (Ash, C, H, N, Cl, S, O)
+            feed_comp[9],
+            feed_comp[1],   # C_in (wt%)
+            feed_comp[2],    # H_in
+            feed_comp[3],    # N_in
+            0,
+            feed_comp[4],    # S_in
+            feed_comp[5],   # O_in
+            feed_comp[4],    # S_organic
+        ])
+
+
+
+
+
     return x_input
 
 
