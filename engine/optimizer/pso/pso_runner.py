@@ -13,7 +13,7 @@ from engine.optimizer.pso.particle import (
 from engine.optimizer.pso.velocity_update import update_velocity
 from engine.optimizer.pso.fitness import evaluate_fitness
 from engine.optimizer.pso.logger import log_particle_state
-from engine.simulation.interface import run_simulation  # ✅ unified interface
+from engine.simulation.interface import run_simulation
 
 def get_effective_vars(particle, num_vars):
     return particle["position"][1:1 + num_vars]
