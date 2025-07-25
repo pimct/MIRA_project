@@ -1,5 +1,5 @@
 {
-  "test_mode": true,
+  "test_mode": false,
   "system_manipulated_var": [
     250,
     0.1
@@ -23,6 +23,7 @@
   ],
   "feed": "MSW",
   "feed_comp": {
+    "Moisture,in (wt%)": 55,
     "C,in (wt%)": 24.1,
     "H,in (wt%)": 1.7,
     "N,in (wt%)": 1.5,
