@@ -1,6 +1,6 @@
 import time
 import os
-#import win32com.client
+import win32com.client
 from engine.simulation.prepare_paths import prepare_aspen_inputs, prepare_aspen_outputs
 
 
@@ -23,6 +23,10 @@ def run_simulation(process_name, x_input, verbose=True, visible=False):
 
     # === Prepare input values ===
     input_dict = prepare_aspen_inputs(process_name, x_input)
+    for i, (p, v) in enumerate(zip(input_dict["path"], input_dict["value"])):
+        if not isinstance(v, (int, float)):
+            print(f"⚠️ Non-numeric value at index {i}: {p} = {v}")
+
 
     # === Launch Aspen ===
     try:
