@@ -41,8 +41,8 @@ OPTIMIZER_CONFIG:
   track_minmax: false
 
   pso:
-    max_iter: 100
-    num_particles: 30
+    max_iter: 1
+    num_particles: 2
 
 
 MODEL_CONFIG:

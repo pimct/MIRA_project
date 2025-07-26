@@ -44,8 +44,8 @@
   },
   "optimizer_config": {
     "pso": {
-      "max_iter": 100,
-      "num_particles": 30
+      "max_iter": 1,
+      "num_particles": 2
     },
     "normalization_bounds": {
       "revenue": {
@@ -57,7 +57,7 @@
         "max": 1500
       }
     },
-    "track_minmax": true
+    "track_minmax": false
   },
   "product_prices": {
     "char": 0.004285,

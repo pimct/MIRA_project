@@ -5,7 +5,7 @@ import plotly.express as px
 
 # === Resolve log folder path ===
 log_dir = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "engine", "optimizer", "pso", "logs")
+    os.path.join(os.path.dirname(__file__), "..", "logs")
 )
 
 # === Load data files ===
