@@ -26,11 +26,11 @@ def prepare_x_input(feed_comp):
             feed_comp[0],     # MOISTURE (wt%)
             #  Proximate analysis (Moisture, FC, VM, Ash)
             feed_comp[0],
-            feed_comp[8],
             feed_comp[7],
-            feed_comp[9],
+            feed_comp[6],
+            feed_comp[8],
             #  Ultimate analysis (Ash, C, H, N, Cl, S, O)
-            feed_comp[9],
+            feed_comp[8],
             feed_comp[1],   # C_in (wt%)
             feed_comp[2],    # H_in
             feed_comp[3],    # N_in

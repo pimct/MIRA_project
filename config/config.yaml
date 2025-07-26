@@ -1,4 +1,4 @@
-test_mode: true
+test_mode: false
 
 default_feedstock: MSW
 default_scenario: CO2-focused
