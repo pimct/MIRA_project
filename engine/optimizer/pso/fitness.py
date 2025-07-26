@@ -19,6 +19,12 @@ def evaluate_fitness(results, config, minmax_tracker=None):
     # === CO2 Emission ===
     co2 = results.get("co2_emission", 0.0)
 
+    if minmax_tracker:
+        minmax_tracker["revenue"][0] = min(minmax_tracker["revenue"][0], revenue)
+        minmax_tracker["revenue"][1] = max(minmax_tracker["revenue"][1], revenue)
+        minmax_tracker["co2"][0] = min(minmax_tracker["co2"][0], co2)
+        minmax_tracker["co2"][1] = max(minmax_tracker["co2"][1], co2)
+
     # === Weights and Normalization Settings ===
     weights = config.get("objective_weights", {})
     bounds = config.get("normalization_bounds", {})

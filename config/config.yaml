@@ -38,7 +38,7 @@ OPTIMIZER_CONFIG:
     co2:
       min: 500
       max: 1500
-  track_minmax: true
+  track_minmax: false
 
   pso:
     max_iter: 100

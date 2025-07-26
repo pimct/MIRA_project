@@ -65,14 +65,14 @@ def run_pso():
             input_vector = [process_index] + x_vars
             results = run_simulation(process_name, model_config, input_vector, feed_comp, test_mode)
 
-            revenue = results.get("revenue", 0.0)
-            co2 = results.get("co2_emission", 0.0)
-
-            if track_minmax:
-                minmax_tracker["revenue"][0] = min(minmax_tracker["revenue"][0], revenue)
-                minmax_tracker["revenue"][1] = max(minmax_tracker["revenue"][1], revenue)
-                minmax_tracker["co2"][0] = min(minmax_tracker["co2"][0], co2)
-                minmax_tracker["co2"][1] = max(minmax_tracker["co2"][1], co2)
+            # revenue = results.get("revenue", 0.0)
+            # co2 = results.get("co2_emission", 0.0)
+            #
+            # if track_minmax:
+            #     minmax_tracker["revenue"][0] = min(minmax_tracker["revenue"][0], revenue)
+            #     minmax_tracker["revenue"][1] = max(minmax_tracker["revenue"][1], revenue)
+            #     minmax_tracker["co2"][0] = min(minmax_tracker["co2"][0], co2)
+            #     minmax_tracker["co2"][1] = max(minmax_tracker["co2"][1], co2)
 
             revenue, co2, score = evaluate_fitness(results, config, minmax_tracker if track_minmax else None)
 
@@ -86,7 +86,7 @@ def run_pso():
                 p["pbest_revenue"] = revenue
                 p["pbest_co2"] = co2
 
-            log_particle_state(log, t, p)
+            log_particle_state(log, t, p, output_dir="logs")
 
             if score < best_score:
                 gbest = p
