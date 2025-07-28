@@ -3,7 +3,6 @@ import os
 import win32com.client
 from engine.simulation.prepare_paths import prepare_aspen_inputs, prepare_aspen_outputs
 
-
 def safe_set(aspen, path, value, verbose=False, index=None):
     node = aspen.Tree.FindNode(path)
     if node is None:
@@ -20,7 +19,6 @@ def safe_set(aspen, path, value, verbose=False, index=None):
             print(f"⚠️ {prefix} Failed to set {path} = {value}: {e}")
         return False
 
-
 def run_simulation(process_name, x_input, verbose=True, visible=False):
     """
     Run Aspen simulation for a given process using Aspen Plus .apw file.
@@ -35,7 +33,8 @@ def run_simulation(process_name, x_input, verbose=True, visible=False):
         dict: Simulation output results {name: value}
     """
     # === Path to .apw file ===
-    apw_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "aspen_models", process_name, f"{process_name}.apw"))
+    apw_path = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), "..", "..", "aspen_models", process_name, f"{process_name}.apw"))
     if verbose:
         print(f"📦 Aspen file path: {apw_path}")
 
@@ -66,12 +65,21 @@ def run_simulation(process_name, x_input, verbose=True, visible=False):
     for i, (path, value) in enumerate(zip(paths, values)):
         safe_set(aspen, path, value, verbose=verbose, index=i)
 
-    # === Run simulation ===
+    # === Run simulation with robust wait logic ===
     try:
         aspen.Reinit()
         aspen.Engine.Run2(1)
-        while aspen.Engine.IsRunning:
+
+        # Wait for Aspen to start running (in case it's too fast)
+        timeout_start = time.time()
+        while not aspen.Engine.IsRunning and time.time() - timeout_start < 3:
+            time.sleep(0.1)
+
+        # Wait for Aspen to finish
+        timeout_start = time.time()
+        while aspen.Engine.IsRunning and time.time() - timeout_start < 60:
             time.sleep(0.2)
+
     except Exception as e:
         aspen.Close(False)
         raise RuntimeError(f"❌ Simulation failed: {e}")
