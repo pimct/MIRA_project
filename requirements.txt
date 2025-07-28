@@ -5,3 +5,8 @@ matplotlib
 joblib
 pywin32
 pyyaml
+yaml
+streamlit
+plotly
+scipy
+tensorflow
