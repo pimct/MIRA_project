@@ -1,6 +1,4 @@
 input_paths:
-  - "\\Data\\Streams\\FEED\\Input\\FLOW\\NCPSD\\WASTES"
-  - "\\Data\\Streams\\FEED\\Input\\FLOW\\MIXED\\WATER"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#0"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#1"
   - "\\Data\\Streams\\FEED\\Input\\ELEM\\NCPSD\\WASTES\\PROXANAL\\#2"

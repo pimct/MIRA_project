@@ -36,7 +36,7 @@ def evaluate_fitness(results, config, minmax_tracker=None, verbose=False):
             print(f"💰 Revenue contribution: {product} = {value:.3f} × {price} → {value * price:.3f}")
 
     # === CO2 Emission ===
-    co2 = results.get("co2_emission", 0.0)
+    co2 = results.get("CO2_emission")
     if co2 is None:
         if verbose:
             print("⚠️ CO2 emission not found, assuming 0.0")
@@ -49,7 +49,7 @@ def evaluate_fitness(results, config, minmax_tracker=None, verbose=False):
         minmax_tracker["co2"][1] = max(minmax_tracker["co2"][1], co2)
 
     # === Min-max Normalization ===
-    if track and minmax_tracker:
+    if minmax_tracker:
         rev_min, rev_max = minmax_tracker["revenue"]
         co2_min, co2_max = minmax_tracker["co2"]
     else:

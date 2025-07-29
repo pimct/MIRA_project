@@ -22,8 +22,6 @@ def prepare_x_input(feed_comp):
 
     # Combustion input vector
     x_input = np.array([
-            100 - feed_comp[0],   # waste feed flow waste (dry-basis)
-            feed_comp[0],     # MOISTURE (wt%)
             #  Proximate analysis (Moisture, FC, VM, Ash)
             feed_comp[0],
             feed_comp[7],

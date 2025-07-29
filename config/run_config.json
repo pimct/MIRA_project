@@ -44,8 +44,8 @@
   },
   "optimizer_config": {
     "pso": {
-      "max_iter": 1,
-      "num_particles": 2
+      "max_iter": 10,
+      "num_particles": 5
     },
     "normalization_bounds": {
       "revenue": {
@@ -53,15 +53,15 @@
         "max\"": 500
       },
       "co2": {
-        "min": 500,
+        "min": 0,
         "max": 1500
       }
     },
-    "track_minmax": false
+    "track_minmax": true
   },
   "product_prices": {
     "char": 0.004285,
-    "electricity": -0.0857
+    "electricity": 0.0857
   },
   "model_config": {
     "htc": {

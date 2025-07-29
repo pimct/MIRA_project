@@ -42,8 +42,6 @@ def run_htc_model(model_config, particle_position,feed_comp):
     """
 
     _, temp, x_char_split = particle_position
-    print(temp)
-    print(x_char_split)
     # Display warning if x_char_split is not valid
     if x_char_split > 1.0:
         print(f"⚠️ Warning: x_char_split = {x_char_split:.3f} is > 1. This may be invalid.")

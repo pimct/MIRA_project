@@ -35,7 +35,7 @@ def log_particle_state(log, iteration, particle, output_dir="logs"):
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
-    # Write the particle state to a JSON file
-    json_file_path = os.path.join(output_dir, f"particle_{particle['id']}_iteration_{iteration}.json")
-    with open(json_file_path, "w") as json_file:
-        json.dump(particle_state, json_file, indent=2)
+    # # Write the particle state to a JSON file
+    # json_file_path = os.path.join(output_dir, f"particle_{particle['id']}_iteration_{iteration}.json")
+    # with open(json_file_path, "w") as json_file:
+    #     json.dump(particle_state, json_file, indent=2)

@@ -11,7 +11,7 @@ process_system:
 
 product_prices:
   char: 0.004285         # $/MJ
-  electricity: -0.0857    # $/kWh (electricity from aspen is negative)
+  electricity: 0.0857    # $/kWh
 
 scenarios:
   CO2-focused:
@@ -36,13 +36,13 @@ OPTIMIZER_CONFIG:
       min": 0
       max": 500
     co2:
-      min: 500
+      min: 0
       max: 1500
-  track_minmax: false
+  track_minmax: yes
 
   pso:
-    max_iter: 1
-    num_particles: 2
+    max_iter: 10
+    num_particles: 5
 
 
 MODEL_CONFIG:
