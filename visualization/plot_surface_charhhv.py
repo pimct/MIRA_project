@@ -1,9 +1,19 @@
 import os
+import json
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import RBFInterpolator
-from config.config import DATA_PATHS
+
+# === Load config ===
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+config_path = os.path.join(BASE_DIR, "config", "run_config.json")
+with open(config_path, "r") as f:
+    config = json.load(f)
+
+process_cfg = config["model_config"]["htc"]
+data_path =  process_cfg["ANN_TRAINING"]["data_path"]
+data_path = os.path.join(BASE_DIR, data_path)
 
 # === Mapping Excel-like column letters to 0-based indices ===
 col_map = {
@@ -17,7 +27,7 @@ col_map = {
 # Define the row ID ranges (1-based indexing)
 row_ranges = list(range(1, 11)) + list(range(31, 45)) # feed OHWD, AGR and MSW
 
-df_raw = pd.read_csv(DATA_PATHS["htc_dataset"])
+df_raw = pd.read_csv(data_path)
 df_raw = df_raw.iloc[[i - 1 for i in row_ranges]]
 print(df_raw)  # shows the first 5 rows
 
@@ -40,7 +50,7 @@ for i, (x, y, z, title) in enumerate(surface_plots_general, 1):
     xi = np.linspace(df[x].min(), df[x].max(), 100)
     yi = np.linspace(df[y].min(), df[y].max(), 100)
     X, Y = np.meshgrid(xi, yi)
-    interp = RBFInterpolator(df[[x, y]], df[z], smoothing=0.5)
+    interp = RBFInterpolator(df[[x, y]], df[z], smoothing=0.01)
     Z = interp(np.column_stack([X.ravel(), Y.ravel()])).reshape(X.shape)
     Z = np.clip(Z, a_min=0, a_max=None)
 

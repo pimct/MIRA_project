@@ -63,17 +63,8 @@ def run_pso():
 
             x_vars = get_effective_vars(p, num_vars)
             input_vector = [process_index] + x_vars
+
             results = run_simulation(process_name, model_config, input_vector, feed_comp, test_mode)
-
-            # revenue = results.get("revenue", 0.0)
-            # co2 = results.get("co2_emission", 0.0)
-            #
-            # if track_minmax:
-            #     minmax_tracker["revenue"][0] = min(minmax_tracker["revenue"][0], revenue)
-            #     minmax_tracker["revenue"][1] = max(minmax_tracker["revenue"][1], revenue)
-            #     minmax_tracker["co2"][0] = min(minmax_tracker["co2"][0], co2)
-            #     minmax_tracker["co2"][1] = max(minmax_tracker["co2"][1], co2)
-
             revenue, co2, score = evaluate_fitness(results, config, minmax_tracker if track_minmax else None)
 
             p["revenue"] = revenue
@@ -87,6 +78,11 @@ def run_pso():
                 p["pbest_co2"] = co2
 
             log_particle_state(log, t, p, output_dir="logs")
+            # Print particle state
+            products = results.get("products", {})
+            products_str = " | ".join(f"{k}: {v:.4f}" for k, v in products.items())
+            print(f"Iteration {t + 1}: Particle {p['id']:2d} | Process: {process_list[p['process_index']]:<10} | Position: {p['position']} | {products_str} | Revenue: {revenue:.4f} | CO₂: {co2:.4f} | Score: {score:.4f}")
+
 
             if score < best_score:
                 gbest = p
@@ -98,6 +94,7 @@ def run_pso():
 
         print(f"📈 Iteration {t + 1}: Best Score = {best_score:.4f}")
         print(f"   ↪ Process: {gbest_process_name}")
+        print(f"   ↪ Best Position: {gbest['pbest_position']}")
         print(f"   ↪ Revenue = {gbest['pbest_revenue']:.2f}, CO₂ = {gbest['pbest_co2']:.2f}")
 
         convergence_log.append({

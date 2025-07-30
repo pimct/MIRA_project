@@ -63,8 +63,32 @@ def run_combustion_model(model_config, particle_position,feed_comp):
     process_name = "combustion"
 
 
-    # Run Aspen model
-    results = run_simulation(process_name,x_input)
+    # # Run Aspen model
+    # results = run_simulation(process_name,x_input)
+    #
+    # return results
 
-    return results
+    # Run Aspen simulation
+    raw_results = run_simulation(process_name, x_input)
 
+    # Assume combustion feed basis is 100 kg/hr wet feed
+    wet_feed_basis = 100.0
+
+    electricity_kwh_hr = raw_results.get("electricity", 0.0)
+    co2_kg_hr = raw_results.get("CO2_emission", 0.0)
+
+    electricity_per_wet = round(electricity_kwh_hr / wet_feed_basis, 4)
+    co2_per_wet = round(co2_kg_hr / wet_feed_basis, 4)
+
+    return {
+        "raw": {
+            "electricity": round(electricity_kwh_hr, 4),
+            "CO2_emission": round(co2_kg_hr, 4)
+        },
+        "products": {
+            "electricity": electricity_per_wet # kWh per wet feed
+        },
+        "emissions": {
+            "CO2_emission": co2_per_wet # kg CO2 per wet feed
+        }
+    }

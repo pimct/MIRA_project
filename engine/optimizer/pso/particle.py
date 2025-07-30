@@ -35,17 +35,30 @@ def quantize(value, step, min_val, max_val):
 
 def initialize_swarm(n_particles, process_list, config):
     """
-    Initialize a swarm of particles with randomized (and quantized) positions.
+    Initialize a swarm of particles. If both 'htc' and 'combustion' are in process_list,
+    assign exactly one particle to combustion, the rest to htc.
     """
     swarm = []
 
+    include_both = set(process_list) >= {"htc", "combustion"}
+
     for i in range(n_particles):
-        process_index = random.randint(0, len(process_list) - 1)
-        process_name = process_list[process_index]
+        # === Assign process ===
+        if include_both:
+            if i == 0:
+                process_name = "combustion"
+            else:
+                process_name = "htc"
+        else:
+            process_name = random.choice(process_list)
+
+        process_index = process_list.index(process_name)
+
+        # === Get variable space ===
         var_ranges = get_var_ranges_by_process(config, process_name)
         var_steps = get_var_steps_by_process(config, process_name)
 
-        # Quantized initialization
+        # === Quantized initialization ===
         x_vars = []
         for (low, high), step in zip(var_ranges, var_steps):
             value = random.uniform(low, high)

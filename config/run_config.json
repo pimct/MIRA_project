@@ -61,7 +61,7 @@
   },
   "product_prices": {
     "char": 0.004285,
-    "electricity": 0.0857
+    "electricity": -0.0857
   },
   "model_config": {
     "htc": {

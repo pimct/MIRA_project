@@ -11,7 +11,7 @@ process_system:
 
 product_prices:
   char: 0.004285         # $/MJ
-  electricity: 0.0857    # $/kWh
+  electricity: -0.0857    # $/kWh
 
 scenarios:
   CO2-focused:
@@ -34,10 +34,10 @@ OPTIMIZER_CONFIG:
   normalization_bounds:
     revenue:
       min": 0
-      max": 500
+      max": 10
     co2:
       min: 0
-      max: 1500
+      max: 10
   track_minmax: yes
 
   pso:
@@ -55,7 +55,7 @@ MODEL_CONFIG:
     MANIPULATED_VARIABLES:
       temp:
         name: "HTC Temperature"
-        bounds: [250, 550]
+        bounds: [150, 550]
         step: 1
       char_routing:
         name: "Char Routing"

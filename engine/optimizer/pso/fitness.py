@@ -6,18 +6,20 @@ def normalize(value, min_val, max_val):
 
 def evaluate_fitness(results, config, minmax_tracker=None, verbose=False):
     """
-    Evaluate fitness for PSO using revenue and CO2 emission.
+    Evaluate fitness using revenue (from products) and CO2 emissions (per wet feed basis).
 
     Args:
-        results (dict): Aspen simulation output {product: value}
-        config (dict): Config dictionary with pricing and weights
-        minmax_tracker (dict, optional): Tracker for normalization bounds
-        verbose (bool): If True, print debug logs
+        results (dict): Structured result with 'products' and 'emissions' keys
+        config (dict): Contains product_prices, weights, bounds
+        minmax_tracker (dict, optional): Updates dynamic normalization bounds
+        verbose (bool): Print debug info
 
     Returns:
         tuple: (revenue, co2_emission, fitness_score)
     """
-    # === Load config ===
+    products = results.get("products", {})
+    emissions = results.get("emissions", {})
+
     product_prices = config.get("product_prices", {})
     weights = config.get("objective_weights", {})
     bounds = config.get("normalization_bounds", {})
@@ -26,29 +28,25 @@ def evaluate_fitness(results, config, minmax_tracker=None, verbose=False):
     # === Revenue Calculation ===
     revenue = 0.0
     for product, price in product_prices.items():
-        value = results.get(product)
-        if value is None:
-            if verbose:
-                print(f"⚠️ Missing value for product '{product}', assuming 0.0")
-            value = 0.0
-        revenue += value * price
+        value = products.get(product, 0.0)
+        product_revenue = value * price
+        revenue += product_revenue
         if verbose:
-            print(f"💰 Revenue contribution: {product} = {value:.3f} × {price} → {value * price:.3f}")
+            print(f"💰 Revenue: {product} = {value:.4f} × {price} → {product_revenue:.4f}")
 
-    # === CO2 Emission ===
-    co2 = results.get("CO2_emission")
-    if co2 is None:
-        if verbose:
-            print("⚠️ CO2 emission not found, assuming 0.0")
-        co2 = 0.0
+    # === CO2 Emission (kg per kg wet feed)
+    co2 = emissions.get("CO2_emission", 0.0)
+    if verbose:
+        print(f"🌫️ CO2 Emission (kg/kg wet feed): {co2:.4f}")
 
+    # === Track bounds
     if minmax_tracker:
         minmax_tracker["revenue"][0] = min(minmax_tracker["revenue"][0], revenue)
         minmax_tracker["revenue"][1] = max(minmax_tracker["revenue"][1], revenue)
         minmax_tracker["co2"][0] = min(minmax_tracker["co2"][0], co2)
         minmax_tracker["co2"][1] = max(minmax_tracker["co2"][1], co2)
 
-    # === Min-max Normalization ===
+    # === Apply min-max normalization
     if minmax_tracker:
         rev_min, rev_max = minmax_tracker["revenue"]
         co2_min, co2_max = minmax_tracker["co2"]
@@ -61,15 +59,14 @@ def evaluate_fitness(results, config, minmax_tracker=None, verbose=False):
     revenue_norm = normalize(revenue, rev_min, rev_max)
     co2_norm = normalize(co2, co2_min, co2_max)
 
-    # === Weighted fitness score ===
     score = (
             weights.get("revenue", 0.0) * revenue_norm +
             weights.get("co2", 0.0) * co2_norm
     )
 
     if verbose:
-        print(f"📊 Normalized Revenue: {revenue_norm:.4f} (raw: {revenue})")
-        print(f"📉 Normalized CO2: {co2_norm:.4f} (raw: {co2})")
+        print(f"📊 Normalized Revenue: {revenue_norm:.4f} (raw: {revenue:.4f})")
+        print(f"📉 Normalized CO2: {co2_norm:.4f} (raw: {co2:.4f})")
         print(f"🎯 Fitness Score: {score:.4f}")
 
     return revenue, co2, score

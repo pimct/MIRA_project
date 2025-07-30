@@ -1,6 +1,7 @@
 # run.py
 
 import argparse
+import time
 from engine.optimizer.pso.pso_runner import run_pso
 from config.config import prepare_run_config
 
@@ -16,7 +17,11 @@ def main():
         prepare_run_config()
     elif args.mode == "pso":
         print("🚀 Running PSO Optimization...")
+        start_time = time.time()  # Start timer
         run_pso()
+        end_time = time.time()    # End timer
+        elapsed = end_time - start_time
+        print(f"⏱️  PSO Optimization completed in {elapsed:.2f} seconds.")
     else:
         print("❌ Unknown mode:", args.mode)
 

@@ -61,6 +61,34 @@ from engine.simulation.ann_predictor import ANNModelSklearn
 #
 #     return char_normalized, organic_normalized
 
+def calculate_char_hhv(char_bal: dict) -> float:
+    """
+    Calculate the HHV of hydrochar based on elemental composition.
+
+    Args:
+        char_bal (dict): Elemental wt% of char (keys: C, H, N, S, O, ASH)
+
+    Returns:
+        float: HHV in MJ/kg
+    """
+    C = char_bal.get("CARBON", 0.0)
+    H = char_bal.get("HYDROGEN", 0.0)
+    N = char_bal.get("NITROGEN", 0.0)
+    S = char_bal.get("SULFUR", 0.0)
+    O = char_bal.get("OXYGEN", 0.0)
+    Ash = char_bal.get("ASH", 0.0)
+
+    hhv = (
+            0.3491 * C +
+            1.1783 * H +
+            0.1005 * N -
+            0.1034 * S -
+            0.0151 * O -
+            0.0211 * Ash
+    )
+    return round(hhv, 3)
+
+
 def atom_bal(feed_ultimate: dict, char_predicted: dict, char_yield: float, solid_loading: float):
     """
     Atom balance using mass-based logic inspired by simulate_htc.
@@ -119,6 +147,7 @@ class PostProcessor:
     def predict_and_postprocess(self, x_input):
         # === ANN Prediction ===
         ann_output = self.model.predict(x_input[:-1])
+        ann_output[ann_output < 0] = 0
 
         # === Parse ANN output ===
         char_yield = ann_output[0]
@@ -214,6 +243,9 @@ class PostProcessor:
         # --- Char Split (x_char_split) ---
         values += [x_char_split]
 
+        # --- Char HHV Calculation ---
+        char_hhv = calculate_char_hhv(char_bal)
+
         return {
             "values": values,
             "postprocessed": {
@@ -223,6 +255,7 @@ class PostProcessor:
                     "water": water_yield
                 },
                 "char_bal": char_bal,
-                "org_bal": org_bal
+                "org_bal": org_bal,
+                "char_HHV": char_hhv
             }
         }

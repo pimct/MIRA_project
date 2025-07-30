@@ -16,9 +16,9 @@ def detect_postprocessor(process_name):
     postprocess_file = os.path.join(model_dir, "ann_postprocess.py")
 
     # Check if the postprocessor file exists
-    if not os.path.exists(postprocess_file):
-        print(f"⚠️ Postprocessor file not found for '{process_name}': {postprocess_file}")
-        return None
+    # if not os.path.exists(postprocess_file):
+    #     print(f"⚠️ Postprocessor file not found for '{process_name}': {postprocess_file}")
+    #     return None
 
     try:
         module_path = f"ann_models.{process_name}.ann_postprocess"
@@ -27,7 +27,7 @@ def detect_postprocessor(process_name):
         post_class = getattr(module, class_name)
         return post_class
     except (ModuleNotFoundError, AttributeError) as e:
-        print(f"⚠️ ANN postprocessor not found for '{process_name}': {e}")
+        # print(f"⚠️ ANN postprocessor not found for '{process_name}': {e}")
         return None
 
 
@@ -60,12 +60,12 @@ def prepare_aspen_inputs(process_name, x_input):
     # Try to use ANN postprocessor
     post_class = detect_postprocessor(process_name)
     if post_class:
-        print(f"🤖 Using ANN postprocessor for '{process_name}'")
+        # print(f"🤖 Using ANN postprocessor for '{process_name}'")
         processor = post_class()
         result = processor.predict_and_postprocess(x_input)
         values = result["values"]
     else:
-        print(f"🔁 No ANN postprocessor found for '{process_name}', using raw input.")
+        # print(f"🔁 No ANN postprocessor found for '{process_name}', using raw input.")
         values = x_input.tolist()
 
     return {

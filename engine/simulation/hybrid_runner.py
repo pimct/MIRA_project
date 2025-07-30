@@ -35,8 +35,8 @@ def run_simulation(process_name, x_input, verbose=True, visible=False):
     # === Path to .apw file ===
     apw_path = os.path.abspath(os.path.join(
         os.path.dirname(__file__), "..", "..", "aspen_models", process_name, f"{process_name}.apw"))
-    if verbose:
-        print(f"📦 Aspen file path: {apw_path}")
+    # if verbose:
+    #     print(f"📦 Aspen file path: {apw_path}")
 
     # === Prepare input values ===
     input_dict = prepare_aspen_inputs(process_name, x_input)
@@ -91,12 +91,13 @@ def run_simulation(process_name, x_input, verbose=True, visible=False):
         try:
             value = aspen.Tree.FindNode(path).Value
             result[name] = value
-            if verbose:
-                print(f"✅ {name}: {value}")
+            # if verbose:
+            #     print(f"✅ {name}: {value}")
         except Exception as e:
             result[name] = None
             if verbose:
                 print(f"⚠️ Failed to read {name} from {path}: {e}")
 
+    aspen.Save()
     aspen.Close(False)
     return result
