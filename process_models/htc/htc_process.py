@@ -88,7 +88,9 @@ def run_htc_model(model_config, particle_position,feed_comp):
         "raw": {
             "char": round(char_kg_hr, 4),
             "electricity": round(elec_kwh_hr, 4),
-            "CO2_emission": round(co2_kg_hr, 4)
+            "CO2_emission": round(co2_kg_hr, 4),
+            "char_HHV": round(char_hhv, 3), # MJ/kg
+            "char_kg_per_kg_wet": round(char_kg_per_kg_wet, 4), # kg char per kg wet feed
         },
         "products": {
             "char": char_heat_per_kg_wet,      # MJ per kg wet feed
