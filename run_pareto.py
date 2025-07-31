@@ -1,77 +1,74 @@
 import argparse
-import importlib
+import time
 import itertools
 import json
 import os
-import time
 
 from config.config import prepare_run_config, load_run_config
 from engine.simulation.interface import run_simulation
 
 
-def generate_full_variable_space(bounds, step_sizes):
-    """
-    Generate grid combinations for the variable space.
-    bounds: dict with variable: [min, max]
-    step_sizes: dict with variable: step
-    """
-    ranges = {
-        var: [round(bounds[var][0] + i * step_sizes[var], 5)
-              for i in range(int((bounds[var][1] - bounds[var][0]) / step_sizes[var]) + 1)]
-        for var in bounds
-    }
-    grid = list(itertools.product(*ranges.values()))
-    keys = list(ranges.keys())
-    return [dict(zip(keys, vals)) for vals in grid]
+def generate_variable_grid(bounds, step=0.1):
+    """Generate full variable grid from bounds."""
+    grid_axes = []
+    for lb, ub in bounds:
+        axis = [round(lb + i * step, 5) for i in range(int((ub - lb) / step) + 1)]
+        grid_axes.append(axis)
+    return list(itertools.product(*grid_axes))
 
 
-def run_pareto_exploration(test_mode=False):
-    # Load run config
+def run_pareto(test_mode=False):
+    # Prompt user if needed
+    prepare_run_config()
     config = load_run_config()
-    process_list = config.get("process_names", ["htc", "direct_combustion"])  # Add your process names here
-    bounds = config.get("decision_variable_bounds", {})
-    step_sizes = config.get("grid_step_size", {k: 0.1 for k in bounds})  # Default 0.1 step
 
-    feed_data = config.get("feed_composition", {})
-    model_config = config.get("model_config", {})
+    process_list = config["process_system"]
+    var_bounds = config["var_bounds"]
+    x_names = config["system_manipulated_var_details"]
+    feed = config["feed"]
+    feed_comp = config["feed_comp"]
+    model_config = config["model_config"]
 
-    print("📊 Generating variable combinations...")
-    variable_combinations = generate_full_variable_space(bounds, step_sizes)
-    print(f"🔍 Total combinations to run: {len(variable_combinations)}")
+    step = 0.1  # Set your preferred step size here
+
+    print("\n📊 Generating grid...")
+    grid = generate_variable_grid(var_bounds, step=step)
+    print(f"🔍 Total combinations: {len(grid)}")
 
     results = []
-
     start_time = time.time()
-    for i, x_input in enumerate(variable_combinations):
-        for process_name in process_list:
+
+    for i, x_vals in enumerate(grid):
+        x_input = {var: val for proc in process_list for var, val in zip(x_names[proc], x_vals)}
+        for proc in process_list:
             try:
-                output = run_simulation(process_name, model_config, x_input, feed_data, test_mode=test_mode)
-                result_entry = {
-                    "process": process_name,
+                output = run_simulation(proc, model_config, x_input, feed_comp, test_mode)
+                result = {
+                    "process": proc,
                     "x_input": x_input,
                     "outputs": output
                 }
-                results.append(result_entry)
-                print(f"[{i+1}/{len(variable_combinations)}] ✅ {process_name} | x = {x_input} → {output}")
+                results.append(result)
+                print(f"[{i+1}/{len(grid)}] ✅ {proc} | x = {x_input} → {output}")
             except Exception as e:
-                print(f"[{i+1}/{len(variable_combinations)}] ❌ Failed {process_name} | x = {x_input}: {e}")
+                print(f"[{i+1}/{len(grid)}] ❌ {proc} failed | x = {x_input} | {e}")
 
-    elapsed = time.time() - start_time
-    print(f"\n🎉 Pareto sweep completed in {elapsed:.2f} seconds.")
-    print(f"📁 Total successful runs: {len(results)}")
+    duration = time.time() - start_time
+    print(f"\n⏱️ Completed in {duration:.2f} seconds. Successful runs: {len(results)}")
 
-    # Optional: Save results to file
+    os.makedirs("results", exist_ok=True)
     with open("results/pareto_results.json", "w") as f:
         json.dump(results, f, indent=2)
+    print("📁 Results saved to results/pareto_results.json")
 
 
 def main():
     parser = argparse.ArgumentParser(description="MIRA Pareto Runner")
-    parser.add_argument("--test", action="store_true", help="Run with mock simulation mode")
+    parser.add_argument("--test", action="store_true", help="Run in test mode with mock simulation")
     args = parser.parse_args()
 
-    print("🚀 Running Pareto Exploration...")
-    run_pareto_exploration(test_mode=args.test)
+    print("🚀 Running Pareto Simulation Sweep...")
+    run_pareto(test_mode=args.test)
 
 
 if __name__ == "__main__":
