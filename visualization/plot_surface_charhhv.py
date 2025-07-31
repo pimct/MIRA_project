@@ -4,64 +4,84 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import RBFInterpolator
+from mpl_toolkits.mplot3d import Axes3D
 
-# === Load config ===
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-config_path = os.path.join(BASE_DIR, "config", "run_config.json")
-with open(config_path, "r") as f:
-    config = json.load(f)
 
-process_cfg = config["model_config"]["htc"]
-data_path =  process_cfg["ANN_TRAINING"]["data_path"]
-data_path = os.path.join(BASE_DIR, data_path)
+def load_feed_composition(feed_csv_path):
+    df_feed = pd.read_csv(feed_csv_path)
+    df_feed.columns = df_feed.columns.str.strip()
+    return df_feed.set_index("Feed")[["Ash", "VM"]].to_dict("index")
 
-# === Mapping Excel-like column letters to 0-based indices ===
-col_map = {
-    'Feed_Ash': 9,         # Column J
-    'Feed_VM': 7,          # Column H
-    'Temp (°C)': 10,       # Column K
-    'Char_HHV (MJ/kg)': 23 # Column X
-}
 
-# === Load raw data (assumes header is in first row) ===
-# Define the row ID ranges (1-based indexing)
-row_ranges = list(range(1, 11)) + list(range(31, 45)) # feed OHWD, AGR and MSW
+def load_simulation_data(json_dir, feed_composition):
+    feed_files = ["pareto_OHWD.json", "pareto_AGR.json", "pareto_MSW.json"]
 
-df_raw = pd.read_csv(data_path)
-df_raw = df_raw.iloc[[i - 1 for i in row_ranges]]
-print(df_raw)  # shows the first 5 rows
+    records = []
+    for file in feed_files:
+        file_path = os.path.join(json_dir, file)
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            for entry in data:
+                feed_name = entry["feed"]
+                if feed_name not in feed_composition:
+                    continue
+                ash = feed_composition[feed_name]["Ash"]
+                vm = feed_composition[feed_name]["VM"]
+                records.append({
+                    "Feed": feed_name,
+                    "Feed_Ash": ash,
+                    "Feed_VM": vm,
+                    "Temp (°C)": entry["x_input"]["temp"],
+                    "Char Routing": entry["x_input"]["char_routing"],
+                    "Char_HHV (MJ/kg)": entry["outputs"]["raw"]["char_HHV"]
+                })
+    return pd.DataFrame(records)
 
-df_all = df_raw.iloc[:, list(col_map.values())].copy()
-df_all.columns = list(col_map.keys())  # Rename for consistency with plotting code
 
-# === Surface Plots ===
-surface_plots_general = [
-    ("Feed_Ash", "Feed_VM", "Char_HHV (MJ/kg)", "a)"),
-    ("Feed_Ash", "Temp (°C)", "Char_HHV (MJ/kg)", "b)"),
-    ("Temp (°C)", "Feed_VM", "Char_HHV (MJ/kg)", "c)"),
-]
-
-fig1 = plt.figure(figsize=(18, 6))
-
-for i, (x, y, z, title) in enumerate(surface_plots_general, 1):
-    ax = fig1.add_subplot(1, 3, i, projection='3d')
-    df = df_all[[x, y, z]].dropna()
-
-    xi = np.linspace(df[x].min(), df[x].max(), 100)
-    yi = np.linspace(df[y].min(), df[y].max(), 100)
+def plot_surface(df, x, y, z, ax, title):
+    df_subset = df[[x, y, z]].dropna()
+    xi = np.linspace(df_subset[x].min(), df_subset[x].max(), 100)
+    yi = np.linspace(df_subset[y].min(), df_subset[y].max(), 100)
     X, Y = np.meshgrid(xi, yi)
-    interp = RBFInterpolator(df[[x, y]], df[z], smoothing=0.01)
+
+    interp = RBFInterpolator(df_subset[[x, y]], df_subset[z], smoothing=0.01)
     Z = interp(np.column_stack([X.ravel(), Y.ravel()])).reshape(X.shape)
     Z = np.clip(Z, a_min=0, a_max=None)
 
-    ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none')
+    surf = ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none', alpha=0.95)
+    ax.scatter(df_subset[x], df_subset[y], df_subset[z], color='red', s=10, alpha=0.8, label="Data Points")
     ax.set_xlabel(x)
     ax.set_ylabel(y)
     ax.set_zlabel(z)
-    ax.set_title(title, pad=0)
+    ax.set_title(title)
+    ax.legend()
 
-plt.subplots_adjust(wspace=0.3, hspace=0.3)
-os.makedirs("results", exist_ok=True)
-plt.savefig("results/surface_plot_char_HHV.png", dpi=300)
-plt.savefig("results/surface_plot_char_HHV.svg", format='svg')
-plt.show()
+
+def generate_all_surface_plots(feed_csv_path, json_dir, output_dir="results"):
+    feed_composition = load_feed_composition(feed_csv_path)
+    df = load_simulation_data(json_dir, feed_composition)
+
+    plots = [
+        ("Feed_Ash", "Temp (°C)", "Char_HHV (MJ/kg)", "a) Feed Ash vs Temp"),
+        ("Feed_VM", "Temp (°C)", "Char_HHV (MJ/kg)", "b) Feed VM vs Temp"),
+        ("Char Routing", "Temp (°C)", "Char_HHV (MJ/kg)", "c) Char Routing vs Temp"),
+    ]
+
+    fig = plt.figure(figsize=(18, 6))
+    for i, (x, y, z, title) in enumerate(plots, 1):
+        ax = fig.add_subplot(1, 3, i, projection='3d')
+        plot_surface(df, x, y, z, ax, title)
+
+    plt.tight_layout()
+    os.makedirs(output_dir, exist_ok=True)
+    plt.savefig(os.path.join(output_dir, "surface_plot_char_HHV_combined.png"), dpi=300)
+    plt.savefig(os.path.join(output_dir, "surface_plot_char_HHV_combined.svg"), format='svg')
+    plt.show()
+
+
+# === Run if standalone ===
+if __name__ == "__main__":
+    project_root = os.path.abspath("..")
+    feed_csv = os.path.join(project_root, "data", "datasets", "feed_data.csv")
+    json_dir = os.path.join(project_root, "pareto_results")
+    generate_all_surface_plots(feed_csv, json_dir)
