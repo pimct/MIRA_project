@@ -42,8 +42,6 @@ def choose_feed(feed_csv):
     selected_row = df[df["Feed"] == feed_name].iloc[0]
     feed_dict = selected_row.to_dict()
     feed_dict.pop("Feed", None)
-
-    # ⬇️ Extract only numeric values (excluding the Feed name)
     feed_array = list(selected_row.drop("Feed").values)
 
     print(f"\n✅ You selected: {feed_name}")
@@ -57,8 +55,6 @@ def choose_feed(feed_csv):
     input("\n👉 Press Enter to confirm and start the simulation...")
 
     return feed_name, feed_dict, feed_array
-
-
 
 
 def run_htc_pareto_selected_feed(test_mode=False):
@@ -81,10 +77,10 @@ def run_htc_pareto_selected_feed(test_mode=False):
         count = int((bounds[1] - bounds[0]) / step) + 1
         print(f"   {var:<15}: {bounds[0]} → {bounds[1]} (step {step}) → {count} points")
 
-        print(f"\n📊 Running HTC for feed '{feed_name}' with total combinations: {len(grid)}")
+    print(f"\n📊 Running HTC for feed '{feed_name}' with total combinations: {len(grid)}")
 
-    results = []
     # Preview first 2 runs
+    results = []
     preview_n = 2
     print(f"\n🔍 Running preview for the first {preview_n} cases...")
     for i in range(preview_n):
@@ -104,20 +100,33 @@ def run_htc_pareto_selected_feed(test_mode=False):
         except Exception as e:
             print(f"\n❌ Preview {i+1} failed: {x_input} → {e}")
 
-    os.makedirs("logs", exist_ok=True)
+    # Save preview results
+    os.makedirs("logs/pareto", exist_ok=True)
     out_file = f"logs/pareto/pareto_htc_{feed_name}.json"
     with open(out_file, "w") as f:
         json.dump(results, f, indent=2)
 
+    # Preview saved JSON structure
+    print("\n📖 Preview of saved JSON (after preview runs):")
+    try:
+        with open(out_file, "r") as f:
+            saved = json.load(f)
+            for i, entry in enumerate(saved[:2], 1):  # Show first 2 records
+                print(f"\n🔹 Entry {i}:")
+                print("   Feed     :", entry.get("feed"))
+                print("   x_input  :", entry.get("x_input"))
+                print("   Products :", entry.get("outputs", {}).get("products"))
+                print("   Emissions:", entry.get("outputs", {}).get("emissions"))
+    except Exception as e:
+        print(f"❌ Failed to preview JSON file: {e}")
+
     input(f"\n✅ Preview complete. Press Enter to run remaining {len(grid) - preview_n} combinations, or Ctrl+C to abort...")
 
-
+    # Run remaining grid
     start_time = time.time()
-
-    for i, values in enumerate(grid):
+    for i, values in enumerate(grid[preview_n:], start=preview_n + 1):
         x_input = {var: val for var, val in zip(var_keys, values)}
         particle_position = [None, x_input.get("temp"), x_input.get("char_routing")]
-
         try:
             output = run_htc_model(model_config, particle_position, feed_array)
             results.append({
@@ -125,15 +134,13 @@ def run_htc_pareto_selected_feed(test_mode=False):
                 "x_input": x_input,
                 "outputs": output
             })
-            print(f"[{i+1}/{len(grid)}] ✅ {x_input} → {output['products']}")
+            print(f"[{i}/{len(grid)}] ✅ {x_input} → {output['products']}")
         except Exception as e:
-            print(f"[{i+1}/{len(grid)}] ❌ Failed {x_input} → {e}")
+            print(f"[{i}/{len(grid)}] ❌ Failed {x_input} → {e}")
 
     elapsed = time.time() - start_time
     print(f"\n⏱️ HTC Pareto run completed in {elapsed:.2f} seconds. Successful runs: {len(results)}")
 
-    os.makedirs("logs", exist_ok=True)
-    out_file = f"logs/pareto/pareto_htc_{feed_name}.json"
     with open(out_file, "w") as f:
         json.dump(results, f, indent=2)
     print(f"📁 Results saved to {out_file}")
