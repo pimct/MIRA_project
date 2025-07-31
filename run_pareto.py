@@ -39,9 +39,11 @@ def choose_feed(feed_csv):
         print("⚠️ Invalid input. Defaulting to first feed.")
         feed_name = feed_names[0]
 
-    row = df[df["Feed"] == feed_name].iloc[0].to_dict()
-    row.pop("Feed", None)
-    values = list(df[df["Feed"] == feed_name].iloc[0].values)
+    selected_row = df[df["Feed"] == feed_name].iloc[0]
+    feed_dict = selected_row.to_dict()
+    feed_dict.pop("Feed", None)
+    feed_array = list(selected_row.values)
+
     print(f"\n✅ You selected: {feed_name}")
     print("🔬 Feed composition:")
     for k, v in feed_dict.items():
@@ -49,7 +51,8 @@ def choose_feed(feed_csv):
 
     input("\n👉 Press Enter to confirm and start the simulation...")
 
-    return feed_name, row, values
+    return feed_name, feed_dict, feed_array
+
 
 
 def run_htc_pareto_selected_feed(test_mode=False):
