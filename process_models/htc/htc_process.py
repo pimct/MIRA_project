@@ -77,7 +77,7 @@ def run_htc_model(model_config, particle_position,feed_comp):
 
     char_kg_hr = raw_results.get("char", 0.0)
     elec_kwh_hr = raw_results.get("electricity", 0.0)
-    co2_kg_hr = raw_results.get("CO2_emission", 0.0)
+    co2_kg_hr = raw_results.get("CO2_emission") or 1000.0 # Penalize missing CO2 emission data (run crash)
 
     char_kg_per_kg_wet = char_kg_hr / wet_feed_flowrate
     char_heat_per_kg_wet = round(char_kg_per_kg_wet * char_hhv, 3)

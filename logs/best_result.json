@@ -1,11 +1,11 @@
 {
-  "iteration": 1,
-  "score": 12.434631346099474,
+  "iteration": 9,
+  "score": 0.5229585175,
   "position": [
     0,
-    358,
-    0.48
+    202,
+    0.5
   ],
-  "revenue": 5.5519042078010505,
-  "co2_emission": 30.4211669
+  "revenue": 0.247882965,
+  "co2_emission": 1.2938
 }

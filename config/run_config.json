@@ -1,7 +1,7 @@
 {
   "test_mode": false,
   "system_manipulated_var": [
-    250,
+    150,
     0.1
   ],
   "system_manipulated_var_details": {
@@ -13,7 +13,7 @@
   },
   "var_bounds": [
     [
-      250,
+      150,
       550
     ],
     [
@@ -44,17 +44,17 @@
   },
   "optimizer_config": {
     "pso": {
-      "max_iter": 10,
+      "max_iter": 20,
       "num_particles": 5
     },
     "normalization_bounds": {
       "revenue": {
         "min\"": 0,
-        "max\"": 500
+        "max\"": 10
       },
       "co2": {
         "min": 0,
-        "max": 1500
+        "max": 10
       }
     },
     "track_minmax": true
@@ -74,7 +74,7 @@
         "temp": {
           "name": "HTC Temperature",
           "bounds": [
-            250,
+            150,
             550
           ],
           "step": 1

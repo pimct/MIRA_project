@@ -1,4 +1,4 @@
-# MIRA: Intelligent Plant-Wide Decision-Support Framework for Waste Valorization
+# MIRA: Multi-objective Integrated Resource Allocation for Waste Valorization
 
 This repository contains the implementation of **MIRA (Multi-objective Integrated Resource Allocation)**, a hybrid decision-support framework developed for the intelligent optimization of hydrochar production and energy recovery from various waste streams. This tool was developed as part of the research article:
 
@@ -24,8 +24,8 @@ MIRA integrates **artificial neural networks (ANNs)**, **thermodynamic process m
 
 ### 📊 Optimization Outputs
 
-- Electricity generation (up to **1.62 MWh/ton** of AGR)
-- Economic returns (up to **$153.9/ton** of AGR)
+- Electricity generation 
+- Economic returns
 - Optimal HTC temperature and char routing fraction (`x_char`, ranging from **0.1 to 0.5**)
 - Trade-offs visualized across environmental and economic performance metrics
 
@@ -39,10 +39,12 @@ MIRA integrates **artificial neural networks (ANNs)**, **thermodynamic process m
 ### 🧪 Reproducibility
 
 This code base is modular and designed for extension to other waste streams and thermochemical processes. Future versions aim to incorporate:
-
+_Future versions aim to incorporate:_
 - Logistics and supply chain models  
 - Additional conversion technologies (e.g., pyrolysis, gasification)  
 - Grid/network integration for energy systems
+_Core improvements:_
+- Run-continue feature for recovering from simulation crashes
 
 
 ## 📄 Citation

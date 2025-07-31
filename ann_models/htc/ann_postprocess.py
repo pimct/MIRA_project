@@ -181,8 +181,8 @@ class PostProcessor:
         # === Mass yields based on corrected atom_bal2 ===
         # Total feed mass basis = 100 g
         mass_dry_feed = solid_loading                          # g (dry solid part)
-        mass_dry_char = char_yield * mass_dry_feed / 100       # g
-        mass_dry_organics = mass_dry_feed - mass_dry_char      # g
+        mass_dry_char = min(char_yield * mass_dry_feed / 100, mass_dry_feed)      # g
+        mass_dry_organics = max(mass_dry_feed - mass_dry_char, 0)       # g
         mass_water = 100 - solid_loading                       # g
 
         char_yield = solid_loading* char_yield / 100.0         # Convert to mass basis (e.g., 20% feed means 20 g total, so char yield is 20 g * char_yield/100)

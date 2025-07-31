@@ -41,7 +41,7 @@ OPTIMIZER_CONFIG:
   track_minmax: yes
 
   pso:
-    max_iter: 10
+    max_iter: 20
     num_particles: 5
 
 
