@@ -45,11 +45,15 @@ def choose_feed(feed_csv):
     feed_array = list(selected_row.values)
 
     print(f"\n✅ You selected: {feed_name}")
-    print("🔬 Feed composition:")
+    print("🔬 Feed composition (named):")
     for k, v in feed_dict.items():
         print(f"   {k:<20} = {v}")
 
+    print("\n🔢 Feed array (ordered):")
+    print("  ", feed_array)
+
     input("\n👉 Press Enter to confirm and start the simulation...")
+
 
     return feed_name, feed_dict, feed_array
 
