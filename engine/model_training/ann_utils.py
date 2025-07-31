@@ -88,7 +88,7 @@ def plot_parity(y_true_dict, y_pred_dict, output_cols, skip_index, save_path):
             ax.scatter(y_true_dict[key][:, i], y_pred_dict[key][:, i],
                        label=f"{key.capitalize()} (R²={r2:.2f})", alpha=0.7, color=colors[key])
 
-        min_val = min(y_true_dict[key][:, i].min() for key in y_true_dict)
+        min_val = max(0, min(y_true_dict[key][:, i].min() for key in y_true_dict))
         max_val = max(y_true_dict[key][:, i].max() for key in y_true_dict)
         ax.plot([min_val, max_val], [min_val, max_val], 'k--')
         ax.set_xlabel("Actual")
