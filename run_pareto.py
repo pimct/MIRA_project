@@ -81,8 +81,8 @@ def run_htc_pareto_selected_feed(test_mode=False):
     elapsed = time.time() - start_time
     print(f"\n⏱️ HTC Pareto run completed in {elapsed:.2f} seconds. Successful runs: {len(results)}")
 
-    os.makedirs("results", exist_ok=True)
-    out_file = f"results/pareto_htc_{feed_name}.json"
+    os.makedirs("logs", exist_ok=True)
+    out_file = f"logs/pareto/pareto_htc_{feed_name}.json"
     with open(out_file, "w") as f:
         json.dump(results, f, indent=2)
     print(f"📁 Results saved to {out_file}")
