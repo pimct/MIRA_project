@@ -43,6 +43,12 @@ def choose_feed(feed_csv):
     row.pop("Feed", None)
     values = list(df[df["Feed"] == feed_name].iloc[0].values)
     print(f"\n✅ You selected: {feed_name}")
+    print("🔬 Feed composition:")
+    for k, v in feed_dict.items():
+        print(f"   {k:<20} = {v}")
+
+    input("\n👉 Press Enter to confirm and start the simulation...")
+
     return feed_name, row, values
 
 
@@ -58,7 +64,33 @@ def run_htc_pareto_selected_feed(test_mode=False):
 
     # Generate grid
     grid = generate_grid(manipulated_vars, manipulated_vars)
-    print(f"\n📊 Running HTC for feed '{feed_name}' with {len(grid)} combinations...")
+
+    print("\n🧮 Variable ranges:")
+    for var in var_keys:
+        bounds = manipulated_vars[var]["bounds"]
+        step = manipulated_vars[var]["step"]
+        count = int((bounds[1] - bounds[0]) / step) + 1
+        print(f"   {var:<15}: {bounds[0]} → {bounds[1]} (step {step}) → {count} points")
+
+        print(f"\n📊 Running HTC for feed '{feed_name}' with total combinations: {len(grid)}")
+
+    # Preview first 2 runs
+    preview_n = 2
+    print(f"\n🔍 Running preview for the first {preview_n} cases...")
+    for i in range(preview_n):
+        x_vals = grid[i]
+        x_input = {var: val for var, val in zip(var_keys, x_vals)}
+        particle_position = [None, x_input.get("temp"), x_input.get("char_routing")]
+        try:
+            output = run_htc_model(model_config, particle_position, feed_array)
+            print(f"\n🔹 Preview {i+1}: x = {x_input}")
+            print("   ↪ Products :", output.get("products", {}))
+            print("   ↪ Emissions:", output.get("emissions", {}))
+        except Exception as e:
+            print(f"\n❌ Preview {i+1} failed: {x_input} → {e}")
+
+    input(f"\n✅ Preview complete. Press Enter to run remaining {len(grid) - preview_n} combinations, or Ctrl+C to abort...")
+
 
     results = []
     start_time = time.time()
