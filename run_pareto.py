@@ -68,7 +68,7 @@ def run_htc_pareto_selected_feed(test_mode=False):
     var_keys = list(manipulated_vars.keys())
 
     # Select feed
-    feed_csv = os.path.join(os.path.dirname(__file__), "..", "data", "datasets", "feed_data.csv")
+    feed_csv = os.path.join(os.path.dirname(__file__), "data", "datasets", "feed_data.csv")
     feed_name, feed_dict, feed_array = choose_feed(feed_csv)
 
     # Generate grid
@@ -83,6 +83,7 @@ def run_htc_pareto_selected_feed(test_mode=False):
 
         print(f"\n📊 Running HTC for feed '{feed_name}' with total combinations: {len(grid)}")
 
+    results = []
     # Preview first 2 runs
     preview_n = 2
     print(f"\n🔍 Running preview for the first {preview_n} cases...")
@@ -92,16 +93,25 @@ def run_htc_pareto_selected_feed(test_mode=False):
         particle_position = [None, x_input.get("temp"), x_input.get("char_routing")]
         try:
             output = run_htc_model(model_config, particle_position, feed_array)
+            results.append({
+                "feed": feed_name,
+                "x_input": x_input,
+                "outputs": output
+            })
             print(f"\n🔹 Preview {i+1}: x = {x_input}")
             print("   ↪ Products :", output.get("products", {}))
             print("   ↪ Emissions:", output.get("emissions", {}))
         except Exception as e:
             print(f"\n❌ Preview {i+1} failed: {x_input} → {e}")
 
+    os.makedirs("logs", exist_ok=True)
+    out_file = f"logs/pareto/pareto_htc_{feed_name}.json"
+    with open(out_file, "w") as f:
+        json.dump(results, f, indent=2)
+
     input(f"\n✅ Preview complete. Press Enter to run remaining {len(grid) - preview_n} combinations, or Ctrl+C to abort...")
 
 
-    results = []
     start_time = time.time()
 
     for i, values in enumerate(grid):
