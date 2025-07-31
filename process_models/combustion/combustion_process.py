@@ -75,7 +75,7 @@ def run_combustion_model(model_config, particle_position,feed_comp):
     wet_feed_basis = 100.0
 
     electricity_kwh_hr = raw_results.get("electricity", 0.0)
-    co2_kg_hr = raw_results.get("CO2_emission", 0.0)
+    co2_kg_hr = raw_results.get("CO2_emission") or 1000.0 # Penalize missing CO2 emission data (run crash)
 
     electricity_per_wet = round(electricity_kwh_hr / wet_feed_basis, 4)
     co2_per_wet = round(co2_kg_hr / wet_feed_basis, 4)
