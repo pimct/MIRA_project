@@ -28,7 +28,8 @@ def log_particle_state(log, iteration, particle, output_dir="logs"):
         "co2_emission": particle["co2_emission"],
         "score": particle["score"],
         "pbest_position": particle["pbest_position"],
-        "pbest_score": particle["pbest_score"]
+        "pbest_score": particle["pbest_score"],
+        "particle_results": particle["results"],
     }
     log.append(particle_state)
 

@@ -67,6 +67,7 @@ def run_pso():
             results = run_simulation(process_name, model_config, input_vector, feed_comp, test_mode)
             revenue, co2, score = evaluate_fitness(results, config, minmax_tracker if track_minmax else None)
 
+            p["results"] = results
             p["revenue"] = revenue
             p["co2_emission"] = co2
             p["score"] = score

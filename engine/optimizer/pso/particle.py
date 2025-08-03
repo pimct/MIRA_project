@@ -42,6 +42,7 @@ def initialize_swarm(n_particles, process_list, config):
 
     include_both = set(process_list) >= {"htc", "combustion"}
 
+
     for i in range(n_particles):
         # === Assign process ===
         if include_both:
