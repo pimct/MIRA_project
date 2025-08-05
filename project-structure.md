@@ -1,40 +1,48 @@
-MIRA_project/
-├── LICENSE                  # Project license information
-├── README.md                # Project overview and usage instructions
-├── requirements.txt         # List of Python dependencies
-├── project-structure.md     # Documentation of the project structure
-├── run.py                   # Main entry point for running optimization or preparation
-├── run_pareto.py            # Script for running Pareto optimization
-├── test.py                  # Test script for the project
-├── __pycache__/             # Python bytecode cache (auto-generated)
-├── ann_models/              # Artificial Neural Network model files
-│   ├── readme.md            # Documentation for ANN models
-│   └── htc/                 # HTC-specific ANN models
-├── aspen_models/            # Aspen simulation models
-│   ├── combustion/          # Combustion process models
-│   ├── digestion/           # Digestion process models
-│   ├── htc/                 # HTC process models
-│   ├── ptx/                 # PTX process models
-│   └── pyrolysis/           # Pyrolysis process models
-├── config/                  # Configuration files and scripts
-│   ├── config.py            # Python configuration module
-│   ├── config.yaml          # YAML configuration file
-│   ├── run_config.json      # JSON configuration for runs
-│   └── __pycache__/         # Bytecode cache for config modules
-├── data/                    # Data storage
-│   ├── datasets/            # Input datasets
-│   └── figures/             # Generated figures and plots
-├── docs/                    # Project documentation
-├── engine/                  # Core engine modules
-│   ├── data_io/             # Data input/output utilities
-│   ├── evaluation/          # Model evaluation code
-│   ├── model_training/      # Model training scripts
-│   ├── optimizer/           # Optimization algorithms (e.g., PSO)
-│   └── simulation/          # Simulation modules
-├── logs/                    # Logs and results from runs
-│   ├── best_result.json     # Best optimization result
-│   ├── convergence.csv      # Convergence data for optimization
-│   └── particle_*_iteration_*.json # Per-particle, per-iteration logs
-├── optimization/            # Optimization-related scripts and modules
-├── process_models/          # Process model definitions
-└── visualization/           # Visualization scripts and tools
+📦 MIRA_project/
+├── .idea/                       # IDE configuration files (e.g., IntelliJ/PyCharm)
+├── ann_models/                  # Trained Artificial Neural Network models
+│   └── htc/                     # ANN models specific to HTC process
+│       └── readme.md
+├── aspen_models/               # Aspen Plus simulation files
+│   ├── combustion/
+│   ├── digestion/
+│   ├── htc/
+│   ├── ptx/
+│   └── pyrolysis/
+├── config/                     # Configuration files
+│   ├── config.py               # Python utilities for configuration loading
+│   ├── config.yaml             # Main YAML config file
+│   └── run_config.json         # Scenario-specific runtime configuration
+├── data/                       # Input and output data files
+│   ├── datasets/               # Input feedstock or experimental datasets
+│   └── figures/                # Saved plots and visualizations
+├── engine/                     # Core engine logic
+│   ├── model_training/         # ANN training pipelines (if implemented)
+│   ├── optimizer/              # Optimization engine
+│   │   └── pso/                # Particle Swarm Optimization implementation
+│   │       ├── fitness.py
+│   │       ├── logger.py
+│   │       ├── particle.py
+│   │       ├── pso.py
+│   │       ├── pso_runner.py
+│   │       └── velocity_update.py
+│   └── simulation/             # Aspen & ANN interface modules
+│       ├── ann_predictor.py    # ANN inference engine
+│       ├── hybrid_runner.py    # Hybrid ANN–Aspen simulation
+│       ├── interface.py        # Interface functions for simulation
+│       ├── mock_runner.py      # Mock simulation (for testing)
+│       └── prepare_paths.py    # Aspen input/output path preparation
+├── logs/                       # Run logs (e.g., optimization logs, results)
+├── process_models/             # Unit operation model folders
+│   ├── combustion/
+│   ├── digestion/
+│   ├── htc/
+│   ├── ptx/
+│   └── pyrolysis/
+├── visualization/              # Plotting and result visualization scripts
+├── LICENSE
+├── project-structure.md        # 📄 You are here
+├── README.md                   # Project overview and instructions
+├── requirements.txt            # Python dependencies
+├── run.py                      # Main entrypoint for running PSO optimization
+└── run_pareto.py               # Script for running Pareto front optimization
