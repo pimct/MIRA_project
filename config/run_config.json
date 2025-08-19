@@ -21,23 +21,23 @@
       0.5
     ]
   ],
-  "feed": "OHWD",
+  "feed": "MSW",
   "feed_comp": {
-    "Moisture,in (wt%)": 75,
-    "C,in (wt%)": 34.2828,
-    "H,in (wt%)": 3.9804,
-    "N,in (wt%)": 1.926,
-    "S,in (wt%)": 0.1926,
-    "O,in (wt%)": 23.8182,
-    "VM,in (%)": 54.6,
-    "FC,in (%)": 9.6,
-    "Ash,in (%)": 35.8
+    "Moisture,in (wt%)": 55,
+    "C,in (wt%)": 24.1,
+    "H,in (wt%)": 1.7,
+    "N,in (wt%)": 1.5,
+    "S,in (wt%)": 0.2,
+    "O,in (wt%)": 17.0,
+    "VM,in (%)": 36.2,
+    "FC,in (%)": 8.3,
+    "Ash,in (%)": 55.5
   },
   "process_system": [
     "htc",
     "combustion"
   ],
-  "scenario": "CO2-focused",
+  "scenario": "Balanced",
   "objective_weights": {
     "revenue": -0.5,
     "co2": 0.5
